@@ -1,0 +1,56 @@
+﻿# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Production builds
+/build
+/dist
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env/
+*.egg-info/
+
+# Uploads & Generated
+apps/backend/uploads/*
+!apps/backend/uploads/.gitkeep
+apps/backend/generated/*
+!apps/backend/generated/.gitkeep
+
+# Client Documents (sensitive - never commit)
+docs/client-documents/requirement-files/*
+docs/client-documents/internal-process-docs/*
+docs/client-documents/sample-excel-sheets/*
+docs/client-documents/sample-output-templates/*
+!docs/client-documents/requirement-files/.gitkeep
+!docs/client-documents/internal-process-docs/.gitkeep
+!docs/client-documents/sample-excel-sheets/.gitkeep
+!docs/client-documents/sample-output-templates/.gitkeep

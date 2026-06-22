@@ -1,0 +1,27 @@
+{
+  "name": "bcp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bank Compliance Platform - AI-Powered Regulatory Gap Analysis",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:web": "npm run dev --workspace=apps/web",
+    "dev:mobile": "npm run dev --workspace=apps/mobile",
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "build:web": "npm run build --workspace=apps/web",
+    "build:backend": "npm run build --workspace=apps/backend",
+    "build:shared": "npm run build --workspace=packages/shared-types && npm run build --workspace=packages/shared-utils",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "author": "BCP Development Team",
+  "license": "UNLICENSED"
+}
