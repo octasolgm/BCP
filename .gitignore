@@ -6,6 +6,9 @@ node_modules/
 # Production builds
 /build
 /dist
+**/.next/
+apps/*/dist/
+packages/*/dist/
 *.tsbuildinfo
 
 # Environment files
@@ -40,12 +43,15 @@ venv/
 *.egg-info/
 
 # Uploads & Generated
-apps/backend/uploads/*
-!apps/backend/uploads/.gitkeep
-apps/backend/generated/*
-!apps/backend/generated/.gitkeep
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
+apps/api/generated/*
+!apps/api/generated/.gitkeep
 
 # Client Documents (sensitive - never commit)
+docs/client-documents/*.pdf
+docs/client-documents/*.docx
+docs/client-documents/*.xlsx
 docs/client-documents/requirement-files/*
 docs/client-documents/internal-process-docs/*
 docs/client-documents/sample-excel-sheets/*

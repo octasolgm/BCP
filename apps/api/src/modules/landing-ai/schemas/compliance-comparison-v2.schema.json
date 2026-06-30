@@ -1,0 +1,49 @@
+{
+  "type": "object",
+  "description": "Evaluate REQUIREMENT POINT TO CHECK against the ATTACHED INTERNAL PROCESS DOCUMENT markdown below. Return one structured compliance object (or a one-element array). No markdown fences or conversational text.",
+  "properties": {
+    "requirement_id": {
+      "type": "string",
+      "description": "The exact clause number and header title being evaluated (e.g. '2.4 Internal Controls')."
+    },
+    "requirement_text": {
+      "type": "string",
+      "description": "The explicit rule or obligation text provided under REQUIREMENT POINT TO CHECK."
+    },
+    "uae_response_compliance_level": {
+      "type": "string",
+      "description": "Page [Number], Section [Header Code]: '[Exact matching quote from the attached document]'. If Non-Compliant, output exactly: No corresponding procedure found."
+    },
+    "comply_status": {
+      "type": "string",
+      "enum": ["Compliant", "Partial Compliant", "Non-Compliant"],
+      "description": "Must be strictly one of: Compliant | Partial Compliant | Non-Compliant. Compliant requires uae_response_compliance_level to contain a Page/Section verbatim quote from the attached document."
+    },
+    "compliance_confidence_percentage": {
+      "type": "integer",
+      "description": "0–100 aligned with status: Compliant 86–100 (100 only if every sub-condition covered), Partial 31–85, Non-Compliant 0–30."
+    },
+    "fulfilled_clauses": {
+      "type": "string",
+      "description": "Bullet lines starting with • for each sub-condition of the requirement that IS covered by the internal document. Output None if nothing is covered."
+    },
+    "corrective_action_plan": {
+      "type": "string",
+      "description": "Required when Partial or Non-Compliant. Start with Gap(s): then numbered items (1) Missing: [exact sub-condition from requirement not evidenced], Fix: [operational action]. Name every gap — never use vague text like 'one or more sub-conditions'. Empty string when Compliant."
+    },
+    "suggested_responsibility": {
+      "type": "string",
+      "description": "Department or role responsible for the corrective action. Must be empty string when Compliant."
+    }
+  },
+  "required": [
+    "requirement_id",
+    "requirement_text",
+    "uae_response_compliance_level",
+    "comply_status",
+    "compliance_confidence_percentage",
+    "fulfilled_clauses",
+    "corrective_action_plan",
+    "suggested_responsibility"
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "assets": [
+      {
+        "include": "swagger-ui/**/*",
+        "watchAssets": true
+      },
+      {
+        "include": "modules/landing-ai/schemas/**/*",
+        "watchAssets": true
+      },
+      {
+        "include": "modules/landing-ai/seed-data/**/*",
+        "watchAssets": true
+      }
+    ]
+  }
+}

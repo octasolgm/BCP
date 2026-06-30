@@ -1,0 +1,28 @@
+/* Large prompt editor for AI multipart endpoints */
+.swagger-ui tr[data-param-name='prompt'] textarea,
+.swagger-ui tr[data-param-name='Prompt'] textarea,
+.swagger-ui textarea.bcp-prompt-textarea {
+  width: 100% !important;
+  min-width: 100% !important;
+  min-height: 360px !important;
+  max-height: 70vh !important;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-size: 13px !important;
+  line-height: 1.5 !important;
+  padding: 12px !important;
+  resize: vertical !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  border: 1px solid #c4c9d1 !important;
+  border-radius: 6px !important;
+  background: #fafbfc !important;
+}
+
+.swagger-ui tr[data-param-name='prompt'] td,
+.swagger-ui tr[data-param-name='Prompt'] td {
+  width: 100% !important;
+}
+
+.swagger-ui .opblock-tag-section[data-tag='AI'] .opblock {
+  border-color: #7c3aed;
+}

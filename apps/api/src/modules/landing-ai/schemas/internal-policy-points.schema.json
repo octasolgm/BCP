@@ -1,0 +1,36 @@
+{
+  "type": "object",
+  "properties": {
+    "points": {
+      "type": "array",
+      "description": "Numbered internal policy or procedure points from bank process documents",
+      "items": {
+        "type": "object",
+        "properties": {
+          "point_id": {
+            "type": "string",
+            "description": "Internal numbering such as 7.4, 3.2.1, Section A.1"
+          },
+          "title": {
+            "type": "string",
+            "description": "Section or procedure title"
+          },
+          "text": {
+            "type": "string",
+            "description": "Full policy text for this point"
+          },
+          "section": {
+            "type": "string",
+            "description": "Section heading in the internal document"
+          },
+          "page_hint": {
+            "type": "integer",
+            "description": "Page number in the internal PDF if available"
+          }
+        },
+        "required": ["point_id", "text"]
+      }
+    }
+  },
+  "required": ["points"]
+}

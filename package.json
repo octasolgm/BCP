@@ -8,19 +8,23 @@
     "packages/*"
   ],
   "scripts": {
+    "dev:api": "npm run start:dev --workspace=apps/api",
     "dev:web": "npm run dev --workspace=apps/web",
     "dev:mobile": "npm run dev --workspace=apps/mobile",
-    "dev:backend": "npm run dev --workspace=apps/backend",
+    "db:migrate": "npm run db:migrate --workspace=apps/api",
+    "db:seed": "npm run seed:landing-ai --workspace=apps/api",
+    "build:api": "npm run build --workspace=apps/api",
     "build:web": "npm run build --workspace=apps/web",
-    "build:backend": "npm run build --workspace=apps/backend",
-    "build:shared": "npm run build --workspace=packages/shared-types && npm run build --workspace=packages/shared-utils",
     "lint": "npm run lint --workspaces --if-present",
     "test": "npm run test --workspaces --if-present",
-    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules"
+    "clean": "rimraf node_modules apps/*/node_modules apps/*/dist apps/*/.next packages/*/node_modules packages/*/dist"
   },
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
+  },
+  "devDependencies": {
+    "rimraf": "^6.0.1"
   },
   "author": "BCP Development Team",
   "license": "UNLICENSED"

@@ -1,0 +1,40 @@
+{
+  "type": "object",
+  "description": "Compare one government regulatory requirement point against the internal policy document markdown provided below. Search the full internal document for evidence. Use page markers and section headings from the parsed markdown. Quote evidence verbatim from the internal document.",
+  "properties": {
+    "reference_pdf": {
+      "type": "string",
+      "description": "Exact filename of the internal policy document where evidence was found (from the document header in the markdown)."
+    },
+    "output_response": {
+      "type": "string",
+      "description": "Evidence location: Page [X], Section [Y] [Section Title if known]: 'exact verbatim quote copied from the internal policy markdown'. Use the page number from parse markdown page markers when present. If no evidence exists, output exactly: No corresponding procedure found."
+    },
+    "fulfilled_clauses": {
+      "type": "string",
+      "description": "Bullet list with each line starting with • describing each sub-requirement of the gov point that IS satisfied by the internal document. If Non-Compliant, output exactly: None."
+    },
+    "status": {
+      "type": "string",
+      "enum": ["Compliant", "Partial Compliant", "Non-Compliant"],
+      "description": "Compliant = all sub-conditions fully covered. Partial Compliant = some but not all. Non-Compliant = no adequate coverage."
+    },
+    "confidence": {
+      "type": "integer",
+      "description": "Strict confidence 0-100. Must align with status: Compliant requires at least 70 unless gaps exist; Partial 30-85; Non-Compliant 0-30. Use 100 only when every sub-condition is fully covered with verbatim evidence."
+    },
+    "corrective_action": {
+      "type": "string",
+      "description": "Corrective action plan if Partial or Non-Compliant. Output N/A if Compliant."
+    },
+    "responsibility": {
+      "type": "string",
+      "description": "Department responsible for remediation. Output N/A if Compliant."
+    }
+  },
+  "required": [
+    "output_response",
+    "status",
+    "confidence"
+  ]
+}

@@ -1,0 +1,3539 @@
+request :
+curl -X 'POST' \
+  'https://localhost:7220/AI/analyze-document' \
+  -H 'accept: text/plain' \
+  -H 'Content-Type: multipart/form-data' \
+  -F 'File=@I M P T F S.pdf.pdf;type=application/pdf' \
+  -F 'Prompt=You are a regulatory document parsing agent. Your job is to analyze the provided text snippet, filter out all irrelevant information, and extract distinct, actionable points, rules, requirements, or procedures.  CRITICAL FILTERING INSTRUCTIONS: - ABSOLUTELY IGNORE and SKIP all introductions, purpose statements, preambles, document history, version controls, background context, and table of contents. - Do not extract sentences that simply explain *why* the document was made (e.g., "The purpose of this document is..."). - ONLY extract lines that state an actual, explicit rule, obligation, operational process step, or penalty. - Keep the points highly distinct. If a single paragraph or sentence contains multiple conditions or steps, split them into individual array items.  OUTPUT FORMAT: Return a clean JSON array of objects. Do not include markdown code blocks like ```json or any conversational text. Output ONLY the raw, clean JSON string matching this structure: [   {     "reference_id": "The exact article number, section header, or paragraph code if available; otherwise, leave blank",     "extracted_text": "The precise, un-shortened rule, requirement, or process statement."   } ]  TEXT SNIPPET TO ANALYZE: --- [INSERT TEXT CHUNK HERE] ---' \
+  -F 'AiModel=gemini-2.5-flash-lite'
+
+response : 
+{
+  "success": true,
+  "message": [
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Implementation of Targeted Financial Sanctions Manual UAE Branch and DIFC Branch"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Group"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Division"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Department"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "UAE/DIFC Branch"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Document Type"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Manual"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Review Period"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "3 Years"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Approval Date"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Expiry Date"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Document Version"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Updated Version"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Request Purpose"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Normal Request"
+    },
+    {
+      "reference_id": "Page 1",
+      "extracted_text": "Document Reference"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Authorized Signatories"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Officer, AML and Compliance (Electronic Signoff)"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Prepared by"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Senior Officer, Policies and Procedures (Electronic Signoff)"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Compliance Representative (Electronic Signoff)"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Reviewed by"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Risk Management Representative (Electronic Signoff)"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Legal & Counseling Representative (Electronic Signoff)"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Sharia Representative (Electronic Signoff)"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Acknowledged by"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Head, Compliance (Electronic Signoff)"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Head, Policies & Procedures"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Concurred by"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Head, Services Management"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Endorsed by"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Head, UAE/DIFC Branch"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Publication Approval"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Approved by"
+    },
+    {
+      "reference_id": "Page 2",
+      "extracted_text": "Head, Corporate Business Group"
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Check List (Quality Assurance Requirements):"
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Business units (document owner) is responsible to review and check the below list and to mark when applicable:"
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Are the below defined:"
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Roles & Responsibilities."
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Definitions."
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Reporting & Monitoring."
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "References."
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Archiving Mechanism."
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "System and Automation mechanism."
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Escalation and Approval mechanism."
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Training & Awarencess Mechanism."
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Does the document contain Maker & Checker?"
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Was the document aligned with all relevant stakeholders?"
+    },
+    {
+      "reference_id": "Page 3",
+      "extracted_text": "Is the content of the document well-structured and clarified?"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Definitions"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Term"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Definitions"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "AML/CFT"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Anti-Money Laundering / Counter Financing of Terrorism"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "CNMR"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Confirmed Name Match Report (Previously known as Funds Freeze Report - FFR)"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "CPF"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Counter Proliferation Financing"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "CSPS"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Company Service Providers"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "DNFBPS"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Designated Non-Financial Businesses and Professions"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "DOB"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Date of Birth"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "DPMS"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Dealer in Precious Metals & Stones"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "EDD"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Enhanced Due Diligence"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "EOCN"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "The Executive Office for Control & Non-Proliferation"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "FATF"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Financial Action Task Force"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Fls"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Financial Institutions"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "FIU"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Financial Intelligence Uni"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "KYC"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Know Your Customer"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "NAS"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Notification Alert System"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "PF"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Proliferation Financing"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "PNMR"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Partial Name Match Report"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "POB"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Place of Birth"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "RFR"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Reasons for Reporting"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "SA"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Supervisory Authority"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "STR/SAR"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Suspicious Transaction Report / Suspicious Activity Report"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "TF"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Terrorist Financing"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "TFS"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Targeted Financial Sanctions"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "UAE"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "United Arab Emirates"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "UBO"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Ultimate Beneficial Owner"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "UN"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "United Nations"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "UNSC"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "United Nations Security Council"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "UNSCR"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "United Nations Security Council Resolution"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "VASPS"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Virtual Assets Service Providers"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "WMD"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Weapons of Mass Destruction"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "Controlling Shareholder"
+    },
+    {
+      "reference_id": "Page 4",
+      "extracted_text": "shareholder who has the ability to directly or indirectly influence or control the Appointment of the majority of the board of directors, or the decisions made by the board or by the general Assembly of the entity, through the ownership of a percentage of the shares or stocks or under an agreement or other arrangement providing for such influence"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Direct Relationship"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "A relationship between two parties that knowingly provide the other material, technological, logistical, or financial support and both parties are directly impacted by the other party"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Freezing"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "To prohibit the transfer, conversion, disposition or movement of any funds or other assets that are owned or controlled by individuals, entities, or groups designated on the UAE Local Terrorist List or United Nations Consolidated List"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Funds"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Assets of all types, in whatever form and however acquired, whether corporeal or incorporeal, tangible or intangible, movable or immovable, electronic, digital or encrypted, including national currency, foreign currencies, documents and legal instruments establishing ownership of such assets or any associated rights, in whatever form, including electronic or digital forms, as well as economic resources considered as assets of any kind, including oil and natural resources, and bank credits, cheques, money orders, shares, securities, bonds, drafts, and letters of credit and any interest, dividends, or other income accruing from or generated by such assets, and that may be used to obtain any other funds, goods or services including internet posting services or related services"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Indirect Relationship"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "A relationship between two parties that affect each other through a third-party source or one or more intermediaries"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Listed Person"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Individuals, legal entities and groups listed by the UN Security Council on the UN Consolidated List, or listed by the UAE Cabinet on the Local Terrorist List, as the case may be"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Listing"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Identifying the individuals, legal entities and groups subject to sanctions imposed pursuant to relevant UNSC Resolutions (\"UNSCRs\"), decisions of the Sanctions Committee, or relevant decisions of the UAE Cabinet, as the case may be, and implementing relevant sanctions against such individuals, legal entities and groups, with a statement of the reasons for Listing"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Local Terrorist List"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Terrorism lists issued by the UAE Cabinet pursuant to the provisions of Article (63) paragraph (1) of Federal Law No. (7) of 2014 on Combating Terrorism Offences"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Other Measures"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Sanction measures other than freezing that must be enforced, and which may be included in Relevant UNSCRs or UAE Cabinet decisions regarding the issuance of Local Terrorist List, such as prohibitions relating to travel, weapons, imports, or provision of fuel supplies and other"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Person"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "All natural and legal persons"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "Previous Customer"
+    },
+    {
+      "reference_id": "Page 5",
+      "extracted_text": "A customer with whom the relationship was terminated and the maintains relevant records according to record keeping and other requirements"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Relevant UNSCRs"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "All current and future UNSCRs relating to the suppression and combating of terrorism, terrorist financing and proliferation of weapons of mass destruction and its financing, including but not limited to Resolutions 1267 (1999), 1373 (2001), 1988 (2011), 1989 (2011), 1718 (2006), 2231 (2015) and any successor resolutions"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Reporting Entities"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "These comprise Fls, DNFBPs, and VASPs that are obligated to comply with the AML/CTF/CPF laws of the UAE"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Sanctions Committee"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "United Nations Security Council Sanctions Committee that oversees compliance of United Nations Security Council Resolutions. Please note that all current United Nations sanctions regimes have their own Sanctions Committee"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Sanctions Lists"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "UAE Local Terrorist List, UNSC Consolidated List and other international bodies like OFAC, EU, HMT, INTERPOL etc."
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Subsidiary"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "An entity owned by another entity by more than 50% of its capital or under full control of that entity regarding appointment of the Board of Directors"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Supervisory Authority"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Federal and local authorities which are entrusted by legislation to supervise Fls, DNFBPs, VASPs or the authority in charge of approving the pursuit of an activity or a profession in case a supervisory authority is not assigned by legislation"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Targeted Financial Sanctions (TFS)"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "The term Targeted Financial Sanctions means that such sanctions are against certain individuals, entities, groups, or undertakings. The term Targeted Financial Sanctions Includes both asset freezing and prohibitions to prevent funds or other assets from being made available, directly, or indirectly, for the benefit of individuals, entities, groups, or organization who are sanctioned"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "The Executive Office"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "The Executive Office of the Committee for Goods and Materials Subject to Import and Export Control"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "UN Consolidated List"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "United Nations Security Council Consolidated List pursuant to the relevant United Nations Security Council Resolutions"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Without Delay"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Immediately or in any case within 24 hours upon designation of an individual, entity, or group on the UAE Local Terrorist List or UNSC Consolidated List"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "CB UAE"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "UAE Central Bank"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "DFSA"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Dubai Financial Services Authority"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "SCA"
+    },
+    {
+      "reference_id": "Page 6",
+      "extracted_text": "Securities and Commodity Authority"
+    },
+    {
+      "reference_id": "Page 7",
+      "extracted_text": "UAE"
+    },
+    {
+      "reference_id": "Page 7",
+      "extracted_text": "National Bank UAE/DIFC"
+    },
+    {
+      "reference_id": "Page 7",
+      "extracted_text": "Senior management"
+    },
+    {
+      "reference_id": "Page 7",
+      "extracted_text": "Senior management UAE/DIFC"
+    },
+    {
+      "reference_id": "Page 7",
+      "extracted_text": "(Head UAE/DIFC, Head UAE Branch, Head Compliance)"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "Contents"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "1. INTRODUCTION"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "9"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "2. PURPOSE"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "9"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "3. SCOPE."
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "12"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "4. MANUAL STATEMENT"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "12"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "5. REFERENCES AND REGULATIONS"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "13"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "6. ROLES AND RESPONSIBILITIES"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "14"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "7. IMPLEMENTATION."
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "15"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "8. REVIEWS AND UPDATES"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "35"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "9. AML STATEMENT AND WHISTLEBLOWING UNIT"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "35"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "10 SHARIAH GOVERNANCE REQUIREMENTS"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "36"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "11. RISK REQUIREMENTS FROM FRAUD AND SOCIAL ENGINEERING"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "37"
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "12. APPENDICES."
+    },
+    {
+      "reference_id": "Page 8",
+      "extracted_text": "37"
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "UAE /DIFC has implemented sanction screening system to scan its customers and transactions against multiple sanctioned / black lists and to highlight potential cases or matches to local authorities to comply with legal and regulatory requirement in the UAE."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "Compliance with Targeted Financial Sanctions (TFS) is a crucial obligation for UAE/DIFC which are \"Reporting Entities\", operating in the United Arab Emirates (UAE)."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "TFS implementation aims to prevent the misuse of financial systems for illicit activities, including Terrorism Financing (TF), Proliferation Financing (PF) and sanctions evasion."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "This document aims to set out the specific key obligations, which are"
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "1) registering in the EOCN's Notification Alert System (NAS);"
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "2) screening the UAE Local Terrorist List and United Nations Security Council Consolidated List (Sanctions Lists);"
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "3) freezing funds or other assets without delay and prohibition of making them available for designated Persons, and"
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "4) reporting TFS measures taken."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "The document also explains key concepts of ownership and control as related to TFS implementation, and the enforcement measures that might be applied in cases of non-compliance."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "Finally, the document provides guidance regarding obligations of sanctions implementation in relation to unilateral or multilateral sanctions"
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "The purpose of this document is to assist the understanding and effective performance by UAE of its statutory obligations under the legal and regulatory framework in force in the UAE."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "It should be read in conjunction with AML/CTF, Compliance and Sanction Manuals, programs and policies."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "Furthermore, this document takes into account standards and guidance issued by the Financial Action Task Force (\"FATF\"), industry best practices and red flag indicators."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "These are not exhaustive and do not set limitations on the measures to be taken by UAE in order to meet its statutory obligations under the legal and regulatory framework currently in force under Article 44.11 of the Cabinet Decision No. (10) of 2019 Concerning the Implementing Regulation of Decree Law No. (20) of 2018 on Anti-Money Laundering and Combating the Financing of Terrorism and Illegal Organizations."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "The regulatory requirement is to deny certain individuals, entities, or groups the means to violate international peace and security, support terrorism or finance proliferation."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "To achieve this, it seeks to ensure that no funds or other assets or services of any kind are made available to designated Persons for as long as they remain subject to the TFS measures."
+    },
+    {
+      "reference_id": "Page 9",
+      "extracted_text": "20. TFS are implemented in the UAE pursuant to UNSCRs in relation to:"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "a. Terrorism and TF:"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "Table 2 - Terrorism and TF TFS related UNSCRs"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "1. Islamic State in Iraq and the Levant (Da'esh), Al-Qaida, and associated individuals, groups, undertakings, and entities."
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "UNSCR 1267 (1999), 1989 (2011) and its successor resolutions"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "2. The Taliban, and associated individuals, groups, undertakings, and entities."
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "UNSCR 1988 (2011) and its successor resolutions"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "3. Any individual or entity included in the Local Terrorist List, pursuant to UNSCR 1373 (2001)"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "UNSCR 1373 (2001)"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "4. Al-Shabaab Sanctions Committee"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "UNSCR 2713 (2023)"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "b. The Proliferation of Weapons of Mass Destruction (WMD)1:"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "Table 3 - PF TFS related UNSCRs"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "1. Democratic People's Republic of Korea (DPRK): nuclear-related, other weapons of mass destruction-related and ballistic missile-related programs."
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "UNSCR 1718 (2006) and its successor resolutions"
+    },
+    {
+      "reference_id": "Page 10",
+      "extracted_text": "1 As of October 18, 2023, the targeted financial sanctions set out in UNSCR 2231 on Iran are no longer in effect. Despite updates to the resolution, the FATF continues to consider Iran under the High Risk Jurisdictions Subject to a Call for Action, also referred to as the \"Black List\", and \"calls on all members and urges all jurisdictions to apply enhanced due diligence, and, in the most serious cases, countries are called upon to apply countermeasures\"."
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "c. Other UN sanctions regimes with TFS:"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "Table 4 - Other TFS related UNSCRs"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "1. Iraq"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "UNSCR 1518 (2003)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "2. The Democratic Republic of Congo (DRC)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "UNSCR 1533 (2004)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "3. Sudan"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "UNSCR 1591(2005)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "4. Lebanon"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "UNSCR 1636 (2005)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "5. Libya"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "UNSCR 1970 (2011)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "6. Guinea-Bissau"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "UNSCR 2048 (2012)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "7. Yemen"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "UNSCR 2140 (2014)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "8. South Sudan"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "UNSCR 2206 (2015)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "9. Haiti"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "UNSCR 2653 (2022)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "10. Central African Republic (CAR)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "UNSCR 2745 (2024)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "TFS Targets"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "The freezing measures, including the prohibition of making funds or other assets or services available, apply to the following targets:"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "a. Any individual, entity, or group designated in the UAE Local Terrorist List issued by the UAE Federal Cabinet or in the UN Consolidated List issued by the UNSC."
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "b. Any entity directly or indirectly owned or controlled by an individual, entity, or group designated under (a)."
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "c. Any individual or entity acting on behalf of or at the direction of any individual, entity, or group designated under (a) & (b)"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "Sanctions Lists Updates"
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "The information on designated individuals, entities, or groups in the Sanctions Lists is subject to change."
+    },
+    {
+      "reference_id": "Page 11",
+      "extracted_text": "The most recently updated information can be found in the following links:"
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "The UAE has a Local Terrorist List of all the sanctioned individuals, entities, or groups designated by the UAE Cabinet."
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "The link to the UAE Local Terrorist List can be found on the EOCN website (and is available in both PDF and Excel format."
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "UN page | EXECUTIVE OFFICE FOR CONTROL & NON-PROLIFERATION"
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "The UNSC has a UNSC Consolidated List of all the sanctioned individuals, entities, or groups designated by the United Nations Sanctions Committees or directly by the UNSC."
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "(United Nations Security Council Consolidated List | Security Council"
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "23. The EOCN has created a subscription-based notification system, known as the EOCN Notification Alert System (NAS), which automatically sends out any updates to the Sanctions Lists to all subscribed entities."
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "TFS measures as per UAE legislation apply exclusively on individuals, entities, and groups that are listed on the UAE Local Terrorist List, pursuant to a UAE Cabinet Decision, or the UNSC Consolidated List, pursuant to a decision by the relevant UNSC Sanctions Committee."
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "Asset freezing and prohibition measures have no time limit: the funds or other assets should remain frozen, and the prohibition from making funds or other assets or services available remains until the individual, entity, or group is delisted (removed) from the UAE Local Terrorist List or the UNSC Consolidated List or until there is a freezing cancellation decision communicated by the EOCN."
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "For designations on other unilateral / multilateral sanctions lists (e.g. OFAC, UKHMT, EU, etc.), appropriate course of action for dealing with matches on other sanctions lists will be undertaken as per guidelines received from Group Compliance."
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "in case any Confirmed or Partial Name Match is identified to a unilateral / multilateral sanctions list or other criminal lists (i.e. OFAC, EU, HMT, INTERPOL, etc.), UAE/DIFC will not use the CNMR/PNMR reports in go AML to report such cases, since CNMRs/PNMRs are used to report matches with the UAE Local Terrorist List and UN List only; however, UAE/DIFC will consult relevant SA / Group Compliance on the appropriate course of action and may consider raising a STR/SAR with the FIU in case a match is identified with other sanctions or criminal lists."
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "UAE has taken appropriate steps to develop, implement and regularly update an appropriate Sanctions Compliance Program (SCP) in order to fulfill its obligation to comply with the provisions of the Cabinet Decision 74 as well as with the directives of the relevant competent authorities and supervisory authorities in regard to sanctions issued by the UNSC."
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "An appropriate SCP also assists UAEs to manage their exposure to the risks associated with international financial sanctions programs and restrictive measures implemented by other countries."
+    },
+    {
+      "reference_id": "Page 12",
+      "extracted_text": "UAE has designed and updated SCP so that its scope is proportionate to the level of its risk profile, nature, scale, and complexity, appropriate for the products and services offers to the customers, clients, and partner"
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "relationships UAE maintain, and the geographic regions in which UAE operate."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "UAE ensures that SCP includes the eight (8) essential components: senior management commitment, risk assessment, sanctions risk appetite, internal controls, policies and procedures, training, independent audit and testing of processes and systems and record keeping."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "The United Nations Security Council (UNSC) is one of the six principal organs of the United Nations (UN) and has primary responsibility for the maintenance of international peace and security."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "It has 15-member countries, and each member has one vote."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "Under the Charter of the United Nations, all Member States of the UN are obligated to comply with the Security Council's decisions."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "The UNSC holds the capacity to take any action to maintain or restore international peace and security under Article 41 of Chapter VII of the Charter of the UN by imposing sanctioning measures."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "These measures encompass a broad range of enforcement options that do not involve the authorization of the use of armed force, including interruption of economic relations, international communications, and diplomatic relations"
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "The Security Council sanctions regimes focus mainly on supporting the settlement of political conflicts, nuclear non-proliferation, and counterterrorism."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "These regimes include measures ranging from comprehensive economic and trade sanctions to more targeted measures such as arms embargoes, travel bans, and restrictions on dealing with certain financial or commodity transactions"
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "In addition, the Financial Action Task Force (FATF), an inter-governmental body responsible for setting international standards on Anti-Money Laundering (AML) and Countering the Financing of Terrorism (CFT) and Countering Proliferation Financing (CPF), under Recommendations 6 and 7 (R6/R7) of the FATF Standards, requires the implementation of TFS to comply with the United Nations Security Council Resolutions (UNSCRs) relating to the prevention and suppression of terrorism, TF, and PF."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "The UAE, as a member of the UN, is committed to implementing UNSCRs, including those related to the UN's sanctions regimes."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "Consequently, through Cabinet Decision No. 74 of 2020, the UAE implements relevant UNSCRs on the suppression and combating of terrorism, TF and PF, in particular relating to TFS."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "Persons should note that, in accordance with the laws of the UAE, the UAE Government also applies TFS by publishing a UAE Local Terrorist List in accordance with UNSCR 1373 (2001), which calls for Member States to publish their own national terrorist lists."
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "This document builds upon the provisions of the following laws and regulations:"
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "Decree Federal Law No. 20 of 2018 on Anti-Money Laundering and Combating the Financing of Terrorism and Illegal Organizations (“AML-CFT Law). Issued: 2018 Amended: 2021 (Federal Law No. 26)"
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "Cabinet Decision No. (10) of 2019 concerning the Implementation Regulation of Decree Federal Law No. 20 of 2018 on Anti-Money Laundering and Combating the Financing of Terrorism and Illegal Organizations (“AML-CFT Decision). Issued: 2019 Amended: 2022 (Cabinet Decision No. 24)"
+    },
+    {
+      "reference_id": "Page 13",
+      "extracted_text": "Cabinet Decision No. (74) of 2020 Regarding Terrorism Lists Regulation and Implementation of UN Security Council Resolutions on the Suppression and Combating of Terrorism, Terrorists Financing & Proliferation of Weapons of Mass Destruction, and Related Resolutions (\"Cabinet Decision 74\")."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "The AML-CFT Law and the AML-CFT Decision require UAE to promptly apply directives issued by the competent authorities of the UAE for implementing the decisions issued by the United Nations Security Council (\"UNSC”) under Chapter VII of the Charter of the United Nations (“UN”)."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "In furtherance of this requirement, the Cabinet Decision 74 sets out the legislative and regulatory framework regarding the Targeted Financial Sanctions (“TFS”), including the Local Terrorist List and the UN Consolidated List."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "The Executive Office acts as a national lead to coordinate and liaison implementation of TFS with all the federal and local government stakeholders including financial institutions (FIs) and designated non-financial business and professions (DNFBPs) and has issued the Guidance on Targeted Financial Sanctions for Fls and DNFBPs\"."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "The Executive office is mainly responsible for:"
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Receiving and processing grievances against Listing in UN and Local Lists decisions;"
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "The update also provides guidance on the obligations to screen and implement freezing measures during weekends and public holidays."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Finally, the sections explaining the procedures for submitting a grievance request have been removed from this guideline and published separately as a standalone Guideline on Grievance Procedures."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Receiving and processing applications to use frozen funds as per sanctions lists;"
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Working closely with the Supreme Council with regards to the local Listing;"
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Circulating updates to the local and UN lists to the government and private sector; and"
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Coordinating and exchanging information between Government Agencies."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Senior Management Commitment"
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Senior management's commitment to, and support of, the UAE SCP is one of the most important factors in determining its success."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "In order to facilitate effective senior management commitment, UAE has:"
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Ensured that senior management has reviewed and approved the organization's SCP."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Ensured that senior management has reviewed and approved the methodology used for undertaking the risk assessment and reviewed and approved the UAE risk assessments at least on an annual basis."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Clearly designated the personnel responsible for ensuring proper implementation of the SCP, including day-to-day operations, and compliance with statutory obligations."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "These personnel should have the appropriate competencies and experience and appropriately trained, to perform the duties and responsibilities associated with this role, has sufficient seniority, and is delegated sufficient authority and autonomy in order to discharge the UAE responsibilities."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "The personnel may have other responsibilities in the UAE, provided that these responsibilities do not conflict with the role in implementing the SCP."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Ensured the existence of direct reporting lines between the personnel responsible for the SCP and senior management to facilitate the escalation of financial sanctions issues, including regular and periodic meetings."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Ensured that the SCP is fully integrated into the organization's daily operations and allocated adequate resources in the form of human capital, expertise, information technology, and other resources as appropriate."
+    },
+    {
+      "reference_id": "Page 14",
+      "extracted_text": "Recognized compliance failings and implement necessary measures to reduce future incidents, including through addressing root causes and implementing systemic solutions."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "UAE has taken appropriate steps to conduct a regular and updated risk assessment to identify, understand, assess, monitor, and manage their risks in line with business nature and size."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "While there is no \"one-size-fits all\" risk assessment, the assessment exercise consists of a holistic review of the UAE from top-to-bottom and assess its touchpoints to the outside world where the UAE may potentially, directly or indirectly, be exposed to sanctioned parties or transactions."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "In most cases, UAE considered performing such risk assessments annually."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "These may include a change to the UAE risk profile depending upon regulatory or law enforcement advisories, or global trends in terrorism financing (\"TF\") and the financing of proliferation of weapons of mass of mass destruction (“PF”)."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "In determining potential risks, UAE has taken into account, to the extent relevant, any vulnerabilities relating to:"
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "its customers, supply chain, intermediaries, and counterparties;"
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "its products and services, including how and where such items fit into other financial or commercial products, services, networks, or systems;"
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "the geographic locations of the organization, as well as its customers, supply chain, intermediaries, and counterparties;"
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "its distribution channels and business partners;"
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "the complexity and volume of its transactions;"
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "the development of new products and business practices including new delivery mechanisms, channels, and partners; and"
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "the use of new or developing technologies for both new and pre-existing products and services."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "UAE has documented risk assessment operations, will maintain them up-to-date on an on-going basis, and make them available upon request."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "The results of a risk assessment are integral to informing the SCP's policies, procedures, internal controls, and training in order to effectively mitigate risks."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "UAE has developed and thoroughly documented risk assessment methodologies to identify, analyze, and address relevant risks."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "The methodologies reflect the conduct and root cause of any violations or systemic deficiencies identified."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "Sanctions Risk appetite"
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "UAE has developed and maintained a comprehensive written sanctions risk appetite approved by the UAE's senior management and embedded through policies, procedures, and screening systems parameterization."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "The sanctions risk appetite specifies which sanctions regimes are applicable to the UAE (for example UNSCR, OFAC, EU, UK etc.)."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "UAE has specific Manual on treating of interests, properties, assets, or entities that are owned or controlled 25% or more by a Listed Person."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "UAE has specified its approach on mitigating the risk of breaching of unilateral sanctions, especially in the context of sanctions that may have extra-territorial implications or the Listed Persons may or may not have a presence in UAE (for example secondary sanctions by OFAC)."
+    },
+    {
+      "reference_id": "Page 15",
+      "extracted_text": "UAE has specified its approach on screening of alias names such as one-word synonyms, vessel names or paper-based instruments."
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "UAE will identify and document any exceptions to sanctions risk appetite or deviations from their policies and procedures; these will be approved by senior management of UAE."
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "Internal Controls"
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "Internal controls are the mechanisms, rules, and procedures implemented to help ensure the integrity and effectiveness of an UAE SCP."
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "As required by Cabinet Decision 74, UAE has appropriate internal controls in place, including the most recent publication of Targeted Financial Sanctions of the UN Consolidated List and the Local Terrorist List."
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "Accordingly, UAE is maintaining strong and clear internal controls that ensures the effective implementation of SCP, including policies, procedures, processes, and systems."
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "UAE has documented how processes and systems are configured in order to demonstrate that configuration is reasonably expected to detect and manage the specific sanctions risks to which UAE is exposed to."
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "UAE has established a mechanism to ensure that, upon learning of a weakness pertaining to its SPC compliance, immediate and effective action is taken to identify compliance gaps and their root causes, including all program-related software, systems, and other technology, and remediate them by implementing systemic solutions to reduce the chances of future failures."
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "Policies and Procedures"
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "UAE has developed and maintained clear and comprehensive written policies and procedures to manage and mitigate the sanctions risks they have identified, commensurate with the nature and size of its business."
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "UAE has ensured that policies and procedures are approved by senior management and that they:"
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "Enabled the UAE to clearly and effectively identify, prevent, escalate, and report suspicious transactions and activities;"
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "Are tailored to the organization and capture the organization's day-to-day operations and processes;"
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "Are easy to follow and designed to prevent employees from engaging in misconduct;"
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "Prohibit employees from, directly or indirectly, informing the customer or any third party that freezing or any Other Measures shall be implemented;"
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "Require enhanced due diligence to be conducted on all customers and transactions that are assessed to be high-risk for TF and PF;"
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "Contain sufficient detail of their record keeping obligations."
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "UAE has ensured the effective and consistent implementation of the policies and procedures related to the SCP across their organizations, including branches, Subsidiaries, and other entities in which UAE hold a majority interest."
+    },
+    {
+      "reference_id": "Page 16",
+      "extracted_text": "UAE has clearly communicated the SCP's policies and procedures, including for record keeping, to all relevant employees and external or outsourced service providers."
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "UAE has reviewed and updated policies and procedures in a timely manner in response to events or emerging risks and ensure that such updates are communicated to employees on a timely basis."
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "UAE has implemented a formal review process at least annually of the policies and procedures at appropriate levels subject to approval where changes are material."
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "UAE will identify and document any exceptions or deviations from the policies and procedures related to the SCP; these should be approved by senior management of UAE."
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "Training"
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "The maintenance and implementation of an effective SCP requires that all relevant employees and management understand requirements and obligations, policies and procedures, internal control mechanisms, and threats, risks, and vulnerabilities."
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "A robust training program is an integral component of an effective SCP."
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "A training program has been implemented which is:"
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "proportionate to the UAE's overall risk profile;"
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "specific to the role carried out by the employee, with tailored training for employees engaged in sensitive roles;"
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "to provide training to all appropriate employees and personnel upon onboarding in a timely manner and at least annually thereafter;"
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "to hold employees accountable for training through assessments;"
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "to Include measures to take immediate and effective action to provide corrective training or other corrective actions to relevant personnel upon learning of a confirmed negative risk assessment result or audit finding, or other deficiency pertaining to the SPC."
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "Independent Audit and Testing of Processes and Systems"
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "Independent audit helps the UAE assess the effectiveness of current processes, including by assessing the sufficiency of the program and by checking for any inconsistencies between the policy and procedures and day-to-day operations in order to identify SCP weaknesses and deficiencies."
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "Independent audits will be:"
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "Be undertaken regularly to review and assess the effectiveness of the financial sanctions policies, procedures, systems and controls, and their compliance with the UAE's obligations;"
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "Be undertaken by the internal audit function, or by a competent independent external auditor, or both, and resourced with skilled and competent staff that understand the SCP of the UAE;"
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "Be commensurate to the level and sophistication of the SCP and updated to account for changing risk assessments or sanctions environments."
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "UAE ensures that the audit function is independent of the audited activities and functions, and has sufficient authority, skills, expertise, and resources within the organization."
+    },
+    {
+      "reference_id": "Page 17",
+      "extracted_text": "UAE will immediately address negative audit findings and take the necessary steps to identify and implement compensating controls until the root cause is remediated."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "In addition, UAE has deployed an independent risk-based testing regime to regularly test processes' and systems' adequacy and expected outcomes, as well as to assess effectiveness in managing the specific risks articulated in the risk assessment."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Regular testing of processes and systems ensures that the screening application generates expected alerts, threshold settings and/or screening rules to forego or suppress undesirable alerts in accordance with the UAE risk appetite."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Regular testing is supported by metrics, analysis, and reporting, and reviewed by the personnel responsible for the SPC to determine whether risk acceptance or remediation is appropriate with respect to any relevant findings."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Regular testing could be undertaken by the internal audit function, or by a competent external provider, or both."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Record Keeping"
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "According to the AML-CFT Law and the AML-CFT Decision, UAE maintains detailed records associated with ML/FT risk assessment and mitigation measures as well as all records, documents, data and statistics for all financial transactions, all records obtained through CDD measures for both the originators and the beneficiaries, account files and business correspondence, and copies of personal identification documents, including STRs and results of any analysis performed."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "UAE maintain the records in an organized manner so as to permit data analysis and the tracking of financial transactions."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Records are sufficient to permit reconstruction of individual transactions so as to provide, if necessary, evidence for prosecution of criminal activity."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "UAE will make the records available to the competent authorities immediately upon request."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "The statutory retention period for all records is at least five (5) years, from the date of completion of the transaction or termination of the business relationship, or from the date of completion of the inspection by the CBUAE/DFSA, or from the date of issuance of a final judgment of the competent judicial authorities, all depending on the circumstances."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "UAE is however following regulation to keep records for 10 years after termination of the business relationship."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Screening Operations"
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Under Article 21.2 of Cabinet Decision 74, UAE regularly screen databases and transactions against names on the UN Consolidated List and the Local Terrorist List, in addition to any lists monitored by 's head office (such as OFAC, HM Treasury and the EU) and also immediately when notified of any changes to any of such lists, and such screening includes the following:"
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Searching customer databases"
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Search for the names of parties to any transactions."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Search for the names of potential customers."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Search for the names of beneficial owners."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Search for names of persons and organizations with which UAE have a direct or indirect relationship."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Continuously search customer database before conducting any transaction, or entering into a serious business relationship with any person, to ensure that name is not listed on the UN Consolidated List or the Local Terrorist List."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Under Articles 15 and 21 of Cabinet Decision 74, when a match is found through the screening process, UAE must immediately, without delay and without prior notice, freeze all Funds."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Without delay, as defined by Article 1 of Cabinet Decision 74, means within 24 hours."
+    },
+    {
+      "reference_id": "Page 18",
+      "extracted_text": "Asset freezing without delay:"
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "Freezing is the prohibition to transfer, convert, dispose, or move any funds or other assets that are owned or controlled by designated individuals, entities, or groups in the Sanctions Lists, immediately (within 24 hours) upon designation."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "It includes: o The freezing of funds and other financial assets and economic resources, and includes preventing their use, alteration, movement, transfer, or access."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "o The freezing of economic resources also includes preventing their use to obtain funds or other assets or services in any way, including, but not limited to, by selling or mortgaging them."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "Prohibition from making funds or other assets or services available:"
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "This means the prohibition to provide funds or other assets or financial services to, any designated individuals, entities, or groups listed in the Sanctions Lists."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "Funds or Other Assets."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "The term Funds or Other Assets means: any assets, including, but not limited to, financial assets, economic resources (including oil and other natural resources), property of every kind, whether tangible or intangible, movable or immovable, however acquired, and legal documents or instruments in any form, including electronic or digital, evidencing title to, or interest in, such funds or other assets, including, but not limited to, bank credits, travellers cheques, bank cheques, money orders, shares, securities, bonds, drafts, or letters of credit, and any interest, dividends or other income on or value accruing from or generated by such funds or other assets, and any other assets which potentially may be used to obtain funds, goods or services."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "Categories of Funds or Other Assets:"
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "All types of funds or other assets are subject to freezing measures."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "The funds or other assets can be categorized into the following types:"
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "Financial Assets."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "Funds and other financial assets subject to sanctions are, for example, the following:"
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "a. Cash, cheques, claims on money, drafts, money orders, bearer instruments."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "b. Deposits with Fls or other entities and balances on accounts, including but not limited to:"
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "(1) fixed or term deposit accounts,"
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "(2) balances on share trading accounts with banks, brokerage firms, or other investment trading accounts."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "c. Debts and debt obligations, including trade debts."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "d. Accounts receivable, notes receivable, and other claims of money."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "e. Equity and other financial interest in a sole trader or partnership."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "f. Publicly and privately traded securities and debt instruments, including stocks and shares, certificates representing securities, bonds, notes, warrants, debentures, and derivatives contracts."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "g. Interest, dividends, or other income on or value accruing from or generated by assets."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "h. Credit, right of set-off, guarantees, performance bonds or other financial commitments."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "i. Letters of credit, bills of lading, bills of sale; notes receivable and other documents evidencing an interest in funds or financial resources and any other instruments of export-financing."
+    },
+    {
+      "reference_id": "Page 19",
+      "extracted_text": "j. Insurance and reinsurance."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "Economic Resources."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "Economic resources subject to sanctions include assets of any kind, whether tangible or intangible, movable or immovable, actual or potential, which potentially may be used to obtain funds, goods, or services, such as:"
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "a. Land, buildings, or other real estate."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "b. Equipment, including computers, computer software, tools, and machinery."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "c. Office furniture, fittings and fixtures and other items of a fixed nature."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "d. Vessels, aircraft, and motor vehicles."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "e. Inventories of goods."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "f. Works of art, cultural property, precious stones, jewellery, or gold."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "g. Commodities, including oil, minerals, or timber."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "h. Arms and related material, including all items mentioned in the arms embargo, included but not limited to weapons and ammunition, military vehicles and equipment, paramilitary equipment, and spare parts for the aforementioned, and technical advice, assistance, or training related to military activities."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "i. Raw materials and components that can be used to manufacture improvised explosive devices or unconventional weapons, including but not limited to chemical components, detonating cord, or poisons."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "Any other assets."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "a. Other intangible assets subject to sanctions include assets of any kind, which potentially may be used to obtain funds, goods, or services, such as patents, trademarks, copyrights, trade names, franchises, goodwill, and other forms of intellectual property, internet hosting or related services."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "b. Internet-based and other electronic or digital payment instruments, including virtual assets."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "TFS Obligations"
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "Article 21 of Cabinet Decision 74 of 2020 has set the main TFS obligations on Reporting Entities."
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "The four main obligations are listed below:"
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "Step 1 Register"
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "Step 2 Screen"
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "Step 3 Implement TFS Measure"
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "Step 4 Report"
+    },
+    {
+      "reference_id": "Page 20",
+      "extracted_text": "Step 1 - Register"
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "UAE/DIFC is registered to the Notification Alert System (NAS) on the EOCN's website to receive automated email notifications on any updates to the Sanctions Lists."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "This registration is aimed to help Reporting Entities receive updated and timely information about the designation, de-listing, or amendments of individuals, entities, or groups designated in the Sanctions Lists"
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "\"Follow TFS Instructions\" Feature."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "The NAS includes a \"Follow TFS Instructions\" feature which provides a step-by-step guide for Reporting Entities on their obligations to implement TFS as per Cabinet Decision No. 74 of 2020, including screening, freezing, and reporting"
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "Step 2 - Screen"
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "UAE / DIFC has undertaken regular and ongoing screening on the latest Sanctions Lists."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "In addition to registering on the EOCN NAS to receive alert updates, UAE/DIFC also updates its sanction system for any updates to UN Sanctions Lists."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "Screening is undertaken in the following circumstances:"
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "a. Upon any updates to the Sanctions Lists."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "In such cases, screening is conducted immediately to ensure compliance with implementing freezing measures without delay (within 24 hours)."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "b. Prior to onboarding new customers."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "c. Upon periodic KYC reviews or if there is a material change in the nature or ownership of the customer."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "d. Daily screening of customer's databases."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "e. Before processing any transaction of a counterparty."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "The following databases is included in the screening process:"
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "a. Existing customer databases."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "This is done through an automated screening system, all systems containing customer data and transactions are mapped to the screening system to ensure full compliance."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "In the case of manual screening, the record is kept for all screening operations."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "b. Potential customers before conducting any transactions or entering a business relationship with any Person."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "c. Previous customers with no current active accounts/relationship up to a period of 5 years."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "d. Names of parties to any transactions (e.g., buyer, seller, agent, freight forwarder, etc.) Ultimate beneficial owners (UBOs), both natural and legal."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "e. Names of Persons with direct or indirect relationships with designated individuals, entities or groups."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "f. Directors and/or agents acting on behalf of customers (including individuals with power of attorney)."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "The Sanctions Lists contain a range of information to aid the identification of designated individuals, entities, or groups during the screening process."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "It is ensured that the screening is done on the key identifiers first prior to considering any other identifiers (such as \"a.k.a – also known as\")."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "If none of the key identifiers match, then the screening result is considered a \"Negative Match\"."
+    },
+    {
+      "reference_id": "Page 21",
+      "extracted_text": "Key Identifiers for Natural Persons and Legal Person"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Natural Persons"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Individual's Name, Date of Birth, Nationality, ID or Passport Number, Last Known Address"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Legal Persons"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Entity or Company's Name"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Trade License Number"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Address or Registration"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Address of Branches"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "There are four possible results following the screening process, as listed below"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Screening Result"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Definition"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Examples"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Confirmed Name Match"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "A Confirmed Name Match is when an individual, entity, or group matches all the key identifiers published on the UAE Local Terrorist List or UNSC Consolidated List"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Your customer's name, nationality, and DOB fully match with the identifiers of a designated Person in the UAE Local Terrorist List or UNSC Consolidated List."
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Partial Name Match"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "A Partial Name Match is when there is a partial match between the key identifiers in the UAE Local Terrorist List or UNSC Consolidated List and a customer's information in your database, and you are unable to conclude a False Positive or a Confirmed Name Match."
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Your customer's name and DOB match with the identifiers of a designated Person in the UAE Local Terrorist List or UNSC Consolidated List, but the nationality is different and there is a slight difference in the name spelling."
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "False Positive"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "A False Positive is a match to listed individuals, entities, or groups, which upon examination of key identifiers, such as full name, DOB, and nationality, proves not to be the designated individuals, entities, or groups."
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Your customer's name matches with a designated Person who is 40 years old according to the DOB identifier in the UAE Local Terrorist List or UNSC Consolidated List, but your customer is a 16-year-old high school student."
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "Negative Match"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "A Negative Match is when no match is identified upon conducting screening"
+    },
+    {
+      "reference_id": "Page 22",
+      "extracted_text": "You have conducted screening following a designation on the UAE Local Terrorist or UNSC Consolidated List and neither a Confirmed nor a Partial Name Match was identified."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "5. If the individual, entity, or group matches all the key identifiers published on the Sanctions Lists, then the result is considered a 'Confirmed Name Match'."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "In case the Confirmed Name Match is an existing customer, you must freeze immediately without delay, refrain from offering any funds or other assets or services and submit a Confirmed Name Match Report (CNMR) detailing the freezing measures to the EOCN and the relevant SA through the go AML platform within five business days from taking any freezing measure."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "In case the Confirmed Name Match is a potential customer (a prospective client), you must reject the transaction immediately and submit a CNMR."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "Reporting procedures on freezing measures due to a Confirmed Name Match are further explained in Step 4 - Report TFS Measures."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "If you identify a partial match between the identifiers in the UAE Local Terrorist List or UNSC Consolidated List and a customer's information in your database, and you are unable to verify the match (Confirmed Name Match or False Positive), then the result is considered a 'Partial Name Match'."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "In this case, you must either suspend the transaction immediately without delay, refrain from offering any funds or other assets or services or reject the transaction and submit a PNMR to the EOCN and the relevant SA through the go AML platform within five business days from rejecting the transaction or any suspension measure taken."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "The PNMR reporting procedures clarifying when to suspend the transaction as opposed to rejecting it are further detailed in Step 4: Report TFS Measures."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "In case a match is identified, and upon examination of key identifiers, you're able to conclude that the match is not the designated individual, entity, or group, then the result is considered a 'False Positive'."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "In this case, no reporting is required; however, internal documentation on the False Positive result should be maintained."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "In cases of weekends and public holidays, UAE / DIFC has put in place daily periodic review screening against the UAE Local List and the UNSC Consolidated List and prevent access or use of funds or other assets that may be subject to freezing measures."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "If the UAE/DIFC has not conducted any business activities or transactions and where customers do not have access to any assets or accounts during weekends or holidays, then the screening obligation starts from the first minute of commencement of business and freezing measures is applied immediately."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "In any case, UAE/DIFC has ensured that funds or other assets subject to TFS measures are prevented from being accessed or used."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "Step 3 - Implement TFS Measures"
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "The following are the TFS measures that are implemented if a Confirmed Name Match with the Sanctions Lists is identified:"
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "i. Freeze all funds or other assets without delay: freeze without delay (within 24 hours) and without prior notice to the designated individual, entity, or group, all the funds or other assets:"
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "a. Owned or controlled, wholly or jointly, directly, or indirectly, by an individual, entity, or group designated in the Sanctions Lists."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "b. Derived or generated from funds or other assets under item (a); or"
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "c. Any individual or entity acting on behalf of or at the direction of any designated individual, entity, or group."
+    },
+    {
+      "reference_id": "Page 23",
+      "extracted_text": "The obligations to freeze without delay shall not prevent additions to frozen accounts of:"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "a. Interest, profits, or other earnings due on the account; or"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "b. Payments due under contracts, agreements or obligations agreed upon prior to the date on which the account has become subject to freezing, provided such additions are immediately frozen."
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "Prohibition from making funds or other assets or services available:"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "UAE / DIFC is prohibited from providing funds or other assets to or rendering financial or other services related to, whether in whole or in part, directly or indirectly, for the benefit of any designated individual, entity, or group on the Sanctions Lists."
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "Lifting of Freezing Measures"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "Freezing applied as a result of TFS measures have no time limits."
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "Asset freezes remain valid until one of the following occurs:"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "a. The designated Person is delisted (removed) from the Sanctions Lists."
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "Upon delisting, all TFS measures are to be lifted immediately without prior approval from EOCN or the relevant SA, unless there is an active Freeze Order related to the delisted Person issued by a Competent Authority (FIU, Public Prosecution, etc.)"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "b. A freezing cancellation decision by EOCN is communicated to the Reporting Entity through goAML"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "Step 4 - Report"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "42. The mechanism to report any TFS measures taken upon identifying a Confirmed or Partial Name Match is through submitting one of the following two reports via goAML: 1) Confirmed Name Match Report (CNMR); or 2) Partial Name Match Report (PNMR)."
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "Confirmed Name Match Report (CNMR) Existing Customer"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "In case a Confirmed Name Match is identified on an existing customer, UAE/DIFC will freeze without delay (within 24 hours) and prohibit making funds or other assets or services available and submit a CNMR through goAML within five business days of implementing the freezing measures."
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "Potential Customer / Counterparty"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "In case a Confirmed Name Match is identified on a potential customer (a prospective client) or counterparty of an existing customer in a transaction, UAE/DIFC will reject the transaction and refrain from dealing with or providing any funds or other assets or services to the Confirmed Name Match and submit a CNMR through goAML within five business days of rejecting the transaction."
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "The report will clarify the actions taken by UAE/DIFC (rejected business relation or transaction), as well as any funds or other assets frozen in the process."
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "Obligatory Information"
+    },
+    {
+      "reference_id": "Page 24",
+      "extracted_text": "The following information is obligatory and will be provided when submitting a CNMR:"
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "The full name of the 'Confirmed Name Match'."
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "Attach ID documents of the 'Confirmed Name Match', such as passport or ID card for individuals, and trade licenses and articles of association for entities."
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "Amount of funds or other assets frozen - (e.g., value of funds in bank accounts, value of transactions, value of securities, value of real estate, etc.)."
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "UAE/DIFC will attach documentary proof as bank statements, transaction receipts, securities portfolio summary, title deeds, insurance policy, etc."
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "Description of rejected transaction or service - (e.g. in case no funds are being held, and the transaction is service based, provide a description of the transaction / service rejected.)"
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "Figure 3 - Confirmed Name Match Process Map"
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "Previous Business Relationships / Transactions and Record Keeping"
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "UAE/DIFC is required to maintain records of all screening results (Confirmed Name Match, Partial Name Match, and False Positives) for at least five years."
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "CNMRs will also be reported on previous business relationships and transactions occurring and accounts held prior to the designation, covering a timeframe of five years."
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "CNMRs will be submitted even if no current funds or other assets are held by the Reporting Entity and includes closed accounts."
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "In this case, UAE/DIFC is required to clarify in the description of the CNMR that no funds or other assets are currently being held, and there is no current business relationship with the Confirmed Name Match, and the status of the accounts (closed) if applicable."
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "Partial Name Match Report (PNMR) Existing Customer"
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "In case a Partial Name Match is identified on an existing customer, UAE/DIFC will possess the identification documents of the customer and, after reviewing the ID documents, if it not is unable to conclude whether the match is a Confirmed Name Match or False Positive."
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "In this case, UAE/DIFC will suspend without delay any transaction, refrain from offering any funds, other assets or services, and submit a PNMR through go AML within five business days from suspension measures."
+    },
+    {
+      "reference_id": "Page 25",
+      "extracted_text": "UAE/DIFC will ensure that all necessary information and documents regarding the Partial Name Match are submitted and maintain suspension measures until further instructions are received from EOCN via go AML on whether to cancel the suspension (‘False Positive') or implement freezing measures (‘Confirmed Name Match')."
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Partial Name Match"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Existing Customer (ID Available)"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Unable to Verify"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "EOCN reply received"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "False Positive"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Cancel/Lift Suspension Measures"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "No reporting required"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Confirmed Name Match"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Freeze and Submit CNMR"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Partial Name Match"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Potential / Counterparty Customer (ID NOT Available)"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Take Necessary Efforts to Obtain ID Documents"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "ID provided within reasonable period (10 business days)"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Conduct Screening and Implement TFS Measures Based on Screening Results"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Reject/Cancel Transaction and Submit PNMR Via goAML Within 5 business days"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "ID NOT provided within reasonable period (10 business days)"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Conduct Screening and Implement TFS Measures Based on Screening Results"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "ID obtained after 10 business days"
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Potential Customer / Counterparty."
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "In case a Partial Name Match is identified on a potential customer (a prospective client) or a counterparty (such as the counterparty in a bank or exchange transaction), UAE/DIFC will first make necessary efforts to obtain identification documents of the potential customer or counterparty to conclude whether the match is a Confirmed Name Match or False Positive."
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "If, after obtaining the ID documents, UAE/DIFC is able to conclude the result as a False Positive, then it may establish the business relation or allow the transaction to proceed without the need to report a PNMR; however, internal documentation of the False Positive result will be maintained."
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "If the Reporting Entity is unable to obtain the identification documents within a reasonable time (10 business days) of identifying the Partial Name Match, then the transaction or service will be rejected (cancelled) and a PNMR submitted through go AML within five business days from rejection of the transaction or service, specifying that the transaction has been rejected due to lack of ID documents of the Partial Name Match."
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "If UAE/DIFC receives the ID document of the potential customer or counterparty after the transaction has been rejected due to lack of ID document (i.e. reasonable period has passed – 10 business days) and the PNMR reported, it will conduct screening based on the newly obtained ID documents and take the necessary steps required depending on the screening result (Confirmed Name Match, False Positive, or unable to verify based on the provided ID documents)."
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "In this case, UAE/DIFC may treat the case as a new transaction and submit a new report based on the screening results."
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "Obligatory Information."
+    },
+    {
+      "reference_id": "Page 26",
+      "extracted_text": "The following information is obligatory and will be provided when submitting a PNMR:"
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "The full name of the 'Partial Name Match’."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "Attach ID documents (if and when available) of the ‘Partial Name Match', such as passport or ID card for individuals, and trade licenses and articles of association for entities."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "Note: EOCN will not be able to verify the result of a Partial Name Match (Confirmed Match or False Positive) in the event of lack of ID documents."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "Amount of funds or other assets suspended (e.g., value of funds in bank accounts, value of transactions, value of securities, value of real estate, etc.)."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "UAE/DIFC will attach documentary proof such as bank statements, transaction receipts, securities portfolio summary, title deeds, etc."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "Description of rejected transaction or service - (e.g. in case no funds are being held, and the transaction is service based, provide a description of the transaction / service rejected.)"
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "Previous Business Relationships / Transactions and Record Keeping."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "The same procedures as CNMRs apply when reporting previous business relationships, accounts, and transactions."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "Ownership, Control, and Acting on Behalf or at the Direction of Designated Persons"
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "Majority Interest"
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "UAE/DIFC is obligated to apply freezing measures on entities which are majority owned by designated individuals or entities."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "In implementing TFS, the criterion to be taken into account when assessing whether a legal entity is majority owned by a designated individual or entity is the possession of more than 50% of the proprietary rights of the legal entity or having a controlling interest in it."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "If this criterion is satisfied, it is considered that the legal entity or arrangement is owned by another individual or entity and is subject to freezing measures."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "Minority Interest"
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "A designated Person holding 50% or less of the proprietary rights of a legal entity is considered to be holding a minority interest in the legal entity."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "In that case, the legal entity is not subject to freezing measures."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "However, UAE/DIFC will remain attentive to any changes in the ownership structure of the legal entity whereby the designated Person's stake increases to greater than 50% or if they obtain a controlling interest."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "UAE/DIFC will also ensure that funds or other assets (e.g. profits, proceeds from sale of assets, etc.) due to the designated Person are subject to freezing measures and are not made available under any circumstances."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "Control"
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "UAE/DIFC will apply freezing measures in cases in which a designated Person holds a minority interest, if there is evidence that the designated Person exerts control over the legal entity (despite owning a minority interest)."
+    },
+    {
+      "reference_id": "Page 27",
+      "extracted_text": "The criteria to be taken into account when assessing whether a legal entity is mainly controlled by another Person, alone or pursuant to an agreement with another shareholder or other third party, could be any of the following:"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "a. having the right to appoint or remove a majority of the members of the administrative or management body of such legal person or arrangement;"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "b. having appointed solely as a result of the exercise of one's voting rights a majority of the members of the administrative or management body of a legal person or arrangement who have held office during the present and previous financial year;"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "c. controlling alone, pursuant to an agreement with other shareholders in or members of a legal person, a majority of shareholders' or members' voting rights in that legal person or arrangement;"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "d. having the right to exercise a dominant influence over a legal person or arrangement pursuant to an agreement entered into with that legal person or arrangement, or to a provision in its Memorandum or Articles of Association, where the law governing that legal person or arrangement permits its being subject to such agreement or provision;"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "e. having the power to exert the right to exercise a dominant influence referred to in point (d), without being the holder of that right;"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "f. having the right to use all or part of the assets of that legal person or arrangement;"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "g. managing the business of that legal person or arrangement on a unified basis, while publishing consolidated accounts;"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "h. sharing jointly and severally the financial liabilities of legal person or arrangement or guaranteeing them."
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "i. Having a power of attorney or authorized signatory arrangement over a legal person or arrangement."
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "Important: If UAE/DIFC implements freezing measures based on the 'control' criteria, it will rely on evidence-based documentation (e.g. legal agreements, guarantor agreement, provision in the Articles of Association, power of attorney or authorized signatory, etc.) that proves that the designated individual, entity, or group exerts control over the legal person or arrangement."
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "Freezing measures will not be applied relying on suspicion only."
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "Acting on Behalf or at the Direction of"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "UAE/DIFC has also implemented screening procedures on targeted financial sanctions on individuals, entities, or groups acting on behalf or at the direction of designated Persons."
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "The relationship to act on behalf or at the direction of designated Persons is evidenced by legal documentation, such as a power of attorney or authorized signatory"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "Important: If UAE/DIFC apply freezing measures based on the 'acting on behalf or at the direction of criteria, it will rely on evidence-based documentation (e.g. power of attorney, authorized signatory, Contracts etc.) that proves that the individual, entity or group is acting on behalf or at the direction of the designated Person."
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "Freezing measures will not be applied relying on suspicion only."
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "Enforcement Measures Consequences for UAE/DIFC"
+    },
+    {
+      "reference_id": "Page 28",
+      "extracted_text": "Any Person, found to violate and/or be in non-compliance with the obligations stated in Cabinet Decision No. 74 of 2020 or failing to implement reasonable procedures to ensure compliance may face imprisonment of no less than one year and no more than seven years and/or a fine of no less than AED 50,000 (fifty thousand dirham) and no more than AED 5,000,000 (five million dirham)."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "In addition, UAE/DIFC will be subject to supervision, and in the case of identified non-compliance, the SA can apply the enforcement actions set out under Article (14) of Federal Decree No. 26 of 2021 Amending Certain Provisions of Law No. 20 for 2018 on Anti-Money Laundering and Countering the Financing of Terrorism."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "The SAs of the Reporting Entities have the legal capacity to supervise the implementation of TFS."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Exemption from Liability in Case of Good Faith TFS Implementation"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Any Person who, in good faith, freeze funds or other assets, or refuses to provide financial services to designated individuals, entities, or groups) in compliance with the provisions of Cabinet Decision No. 74 of 2020 shall be exempt from any damages or claims, resulting from such actions, including penal, civil, and/or administrative liability"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "TFS Reporting Flow Charts"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Confirmed Name Match"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Existing Customer"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Freeze Assets Without Delay Remain in effect until de-listing"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Submit CNMR Via goAML Within 5 business days"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Potential/ Counterparty Customer"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Reject Customer/ Transaction"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Submit CNMR Via goAML Within 5 business days"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Partial Name Match"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Existing Customer (ID Available)"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Unable to Verify"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "EOCN reply received"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "False Positive"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Cancel/Lift Suspension Measures"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "No reporting required"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Confirmed Name Match"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Freeze and Submit CNMR Via goAML within five business days"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Partial Name Match"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Potential / Counterparty Customer (ID NOT Available)"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Take Necessary Efforts to Obtain ID Documents"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "ID provided within reasonable period (10 business days)"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Conduct Screening and Implement TFS Measures Based on Screening Results"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Reject/Cancel Transaction and Submit PNMR Via goAML Within 5 business days"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "ID NOT provided within reasonable period (10 business days)"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Conduct Screening and Implement TFS Measures Based on Screening Results"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "ID obtained after 10 business days"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Sanctions Evasion"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Illicit actors targeted by sanctions are likely to utilize a range of tactics to evade the prohibitions, which can be difficult to identify."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "UAE remain vigilant in order to identify attempts to evade, avoid, or circumvent sanctioned activities."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Frequent tactics employed for sanctions evasion include renaming, using intermediaries, creating front companies, and using alternative financial networks."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "UAE is monitoring not only for sanctions violations but also for red flags of potential evasion risks."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "UAE remain vigilant for new methods of evading sanctions."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Customer Due Diligence (\"CDD\") and Enhanced Due Diligence (\"EDD\") play a critical role, in combination with sanctions screening, to identify and prevent more complicated forms of sanctions evasion."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "If a sanction concern arises, the escalation process detailed in each sanctions guideline must be followed."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "UAE also prohibit activity that aims to evade or circumvent sanctions prohibitions."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Accordingly, UAE does not engage in activities that could be part of a sanction's evasion scheme, including but not limited to:"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Tipping off customers or counterparties;"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Omitting, withholding, altering, misstating, or removing any information about customers or transactions;"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Accepting incomplete (when the customer deliberately does not provide an identifier to obscure being matched with the sanctions lists, such as a date of birth or address) or false information (when the customer provides a false identifier that would not match with the sanctions lists listed details, such as a wrong date of birth);"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Providing false or incomplete information to counterparties or sanctions-imposing authorities; or"
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "Any other activities that would cause a conflict with or failure to comply with Sanction Guidelines."
+    },
+    {
+      "reference_id": "Page 29",
+      "extracted_text": "For more details and information, please refer to the Executive Office's \"Typologies on the circumvention of Targeted Sanctions against Terrorism and the Proliferation of Weapons of Mass Destruction\" (circulated by CBUAE Notice No. 2893 dated 02/06/2021)."
+    },
+    {
+      "reference_id": "Page 30",
+      "extracted_text": "Maintenance of UN Consolidated List and Local Terrorist List"
+    },
+    {
+      "reference_id": "Page 30",
+      "extracted_text": "UAE also rely on the official website of the UNSC for the most updated UN Consolidated List:"
+    },
+    {
+      "reference_id": "Page 30",
+      "extracted_text": "https://www.un.org/securitycouncil/content/un-sc-consolidated-list"
+    },
+    {
+      "reference_id": "Page 30",
+      "extracted_text": "UAE also rely on the official website of the Executive Office to obtain the most recent publication of the Local Terrorist List issued by the UAE Cabinet:"
+    },
+    {
+      "reference_id": "Page 30",
+      "extracted_text": "https://www.uaeiec.gov.ae/en-us/ https://www.uaeiec.gov.ae/ar-ae/"
+    },
+    {
+      "reference_id": "Page 30",
+      "extracted_text": "In addition, under Article 21 of Cabinet Decision 74, UAE has registered itself on the Executive Office's website in order to receive automated email notifications with updated and timely information about the Listing and de-Listing of individuals or entities in the Local Terrorist List and in the UN Consolidated List."
+    },
+    {
+      "reference_id": "Page 30",
+      "extracted_text": "UAE utilize external vendors' lists for Sanctions List and Local Lists and it is ensured that the lists contain all names listed by the UN Consolidated List and UAE Local Terrorist List."
+    },
+    {
+      "reference_id": "Page 30",
+      "extracted_text": "Customer Screening"
+    },
+    {
+      "reference_id": "Page 30",
+      "extracted_text": "Screening processes are conducted at various stages of the customer life cycle and include:"
+    },
+    {
+      "reference_id": "Page 30",
+      "extracted_text": "Periodic name screening: A change to either the customer identifying information or UN Consolidated List /Local Terrorist List will trigger an automatic rescreening."
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "Ad hoc name screening: Such screening is triggered by a specific business need or in order to comply with a request by a competent authority, or in the case of feedback from a downstream financial institution."
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "Re-screening: A specific scenario in the transaction monitoring system identifies a high-risk jurisdiction in updated customer information."
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "Name Screening"
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "In addition to the regular screening utilizing the UN Consolidated List and Local Terrorist List indicated above, UAE maintains the following sanctions compliance procedures to prevent and detect sanctions breaches:"
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "1. Ownership/Control Rule: Individuals or legal entities that are directly or indirectly owned or controlled mainly or fully by one or more Listed Person are subject to the same prohibitions as the Listed Person, even if such individuals or legal entities are not specifically named by the competent authority on the respective UN Consolidated List or Local Terrorist List."
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "2. The criterion to be considered when assessing whether an individual or legal entity is mainly owned by a Listed Person is the possession of more than 25% of the proprietary rights of an entity or having majority interest in it."
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "If this criterion is satisfied, it is considered that the individual or legal entity is owned by a Listed Person."
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "3. The criteria to be considered when assessing whether an individual or legal entity or arrangement is mainly controlled by a Listed Person, alone or pursuant to an agreement with another shareholder or other third party, include the following:"
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "a) Having the right to appoint or remove a majority of the members of the administrative or management body of such a legal person, entity, group or arrangement"
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "b) Having appointed solely as a result of the exercise of one's voting rights a majority of the members of the administrative or management body of a legal person, entity, group or arrangement who have held office during the present and previous financial year;"
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "c) Controlling alone, pursuant to an agreement with other shareholders in or members of a legal person, group or entity, a majority of shareholders' or members' voting rights in that legal person, entity, group or arrangement;"
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "d) Having the right to exercise a dominant influence over a legal person, group or entity, pursuant to an agreement entered into with that legal person, entity, group or arrangement, or to a provision in its Memorandum or Articles of Association, where the law governing that legal person, entity, group or arrangement permits its being subject to such agreement or provision;"
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "e) Having the power to exercise the right to exercise a dominant influence referred to in the previous point, without being the holder of that right;"
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "f) Having the right to use all or part of the assets of that legal person, entity, group or arrangement;"
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "g) Managing the business of that legal person, entity, group or arrangement on a unified basis, while publishing consolidated accounts;"
+    },
+    {
+      "reference_id": "Page 31",
+      "extracted_text": "h) Sharing jointly and severally the financial liabilities of legal person, entity, group or arrangement, or guaranteeing them."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "i) Fuzzy Matching: An algorithm-based technique to match one data point, where the contents of the information being screened is not identical, but its spelling, pattern or sound is a close match to the contents contained on a list used for screening."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "j) Weak or Low-quality Aliases: Relatively broad or generic alias may generate a large volume of false hits when such names are run through a computer-based screening system."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "UAE should perform their own assessments on whether to screen for weak aliases based on their understanding of their own risk profile."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "Verification of False Positives"
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "Because many names may be common, various potential matches may be found."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "A potential match is when there is any match between data in the sanctions lists with any information in the UAE databases."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "However, it does not necessarily mean that the individual or entity the UAE is dealing with is subject to sanctions."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "When identifying the potential match, UAE should suspend any transaction until they are satisfied it is not a Listed Person."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "UAE should compare potential matches with the UN Consolidated List and the Local Terrorist List in order to confirm whether they are true matches and to eliminate \"false positives.\""
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "should compare information that is known about the party in question, such as date of birth and address, with other information provided in the designation order."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "Furthermore, UAE should undertake efforts to obtain additional information and identification documents, which may have previously not been obtained from the customer or a counterparty to ascertain whether the customer is the actual designated person in the case of similar or common names."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "If the UAE establishes that the match is a false positive, then the UAE does not need to freezing or apply Other Measures related to sanctions."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "Therefore, the UAE may allow the transaction or relationship to continue its normal course, provided that the transaction or relationship is not suspicious and does not trigger any other concerns."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "UAE is required to maintain evidence of the false positive verification process in their records and make them available to the competent authorities immediately upon request."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "UAE may create a \"white list\" (or a \"good customer list\") of names of customers that have been flagged as potential matches to the UN Consolidated List and the Local Terrorist List but subsequently cleared through thorough due diligence by the UAE."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "Those \"white lists\" may be used to improve the process related to screening by leveraging the results of past due diligences and reducing the number of false positives."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "While an UAE should not overly rely on such a list and must diligently and continuously screen customers and transactions in case they are implicated in updated UN Consolidated List and Local Terrorist List, the use of such a \"white list\" may assist the UAE in expediting the dispositioning in case of repeated false positive matches."
+    },
+    {
+      "reference_id": "Page 32",
+      "extracted_text": "Payments Screening"
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "UAE should also screen information regarding counterparties of all incoming and outgoing transfers in order to identify any potential match to Listed Persons."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "The information to be screened includes:"
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "The parties involved in a transaction, including the sender and the receiver;"
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Third parties and intermediaries;"
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Bank Names, Bank Identifier Code (\"BIC\") and other routing codes;"
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Free text fields;"
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "International Securities Identification Number (“ISINs”) or other risk relevant product identifiers."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "(there are multiple fields in the identifier information section for sanctions lists."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "An ISIN number can be screened as an identifier number similar to a date of birth/passport number, and towns/regions can be screened as jurisdictions operating in);"
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Geography, including addresses, countries, cities, towns, regions."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Screening of Trade finance Transactions (Dual use goods list)"
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Sanction screening tuning process"
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "UAE track sanctions screening outputs in order to identify and address any technical or operational issues and understand key risks or trends over time."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Irregularities in sanctions screening system performance, including significant changes in the volume of apparent matches to sanctions lists over time, may be indicative of underlying data quality or data integrity issues or of the need to recalibrate sanctions screening search logic."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Identified data quality or integrity issues and apparent screening logic issues will be reported back to Quartz KYC (sanction screening system) for tuning and optimization."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "In addition, UAE will ensure that senior management is regularly updated on the performance and output of sanctions screening program, including through the provision of metrics, trends, and other MIS reporting generated by sanctions screening system or produced by sanctions screening alert review and investigation teams."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Such reporting may include an analysis of the number and type of screening hits and the proportion of apparent matches that are cleared as false positives compared to those that are confirmed as potential or true matches."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Sanctions screening-related reporting and analysis will feed back into UAE's financial crimes risk assessment, and UAE management will use this information to ensure that the UAE's customers and transaction remain within the UAE's risk appetite and that activity exceeding its risk appetite is addressed through appropriate risk mitigation measures, up to and including account activity restrictions and customer exit."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "On a periodic basis and in the event of material system output or operational irregularities, UAE will reassess the functionality of sanctions screening systems and processes, including threshold settings, screening rules, and the accuracy and completeness of data used in the screening process."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Any proposed material adjustments to sanctions screening search logic will be subject to pre-implementation testing using sample or historical data to ensure the proper functioning of the new or revised logic, and reflected in updated sanctions screening documentation."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Sanctions screening model testing and validation will be performed by individuals with sufficient expertise and appropriate level of independence from the model's development and implementation."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "Generally, validation will be done by Group Compliance who are not responsible for the development or use of the sanctions screening model and do not have a stake in whether a model is determined to be valid."
+    },
+    {
+      "reference_id": "Page 33",
+      "extracted_text": "All model validation activities and identified issues will be clearly documented, and management will take prompt action to address model issues."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Data Identification and Management"
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "UAE has put in place adequate checking points in RCSA to ensure that customer and transactional data feeding into their sanction screening systems meets established data quality standards, that data is subject to testing and validation at risk-based intervals, and that identified data quality and completeness issues are remediated in a timely manner."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "UAE will identify that all data sources that serve as inputs into sanction screening system."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "sanction screening data sources may include both internal customer databases, core banking or other transaction processing systems, and applicable “flat-file” databases, as well as external sources such as Society for Worldwide Interbank Financial Telecommunication (“SWIFT”) message data."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Source system will include the identification of a system owner or primary party responsible for overseeing the quality of source data and addressing identified data issues."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "UAE will identify that all data sources that serve as inputs into sanction screening system."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "sanction screening data sources may include both internal customer databases, core banking or other transaction processing systems, and applicable “flat-file” databases, as well as external sources such as Society for Worldwide Interbank Financial Telecommunication (“SWIFT”) message data."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Source system will include the identification of a system owner or primary party responsible for overseeing the quality of source data and addressing identified data issues."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Both prior to the initial deployment of a sanction screening system or process and at risk-based intervals thereafter, UAE will test and validate the integrity, accuracy, and quality of data to ensure that accurate and complete data is flowing into sanction screening systems."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Data testing and validation will typically occur at minimum every 12 to 18 months, and the frequency of such activities will be clearly mandated and documented in the UAE's procedures."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Such testing will include data integrity checks to ensure that data is being completely and accurately captured in source systems and transmitted to sanction screening systems, as well as the reconciliation of transaction codes across core banking and sanction screening systems."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Testing may also utilize quantitative data quality standards or benchmarks to track data quality over time and specify a threshold or range beyond which data irregularities or other data quality issues will require corrective action."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Both prior to the initial deployment of a sanction screening system or process and at risk-based intervals thereafter, UAE will test and validate the integrity, accuracy, and quality of data to ensure that accurate and complete data is flowing into sanction screening systems."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Data testing and validation will typically occur at minimum every 12 to 18 months, and the frequency of such activities will be clearly mandated and documented in the UAE's procedures."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Such testing will include data integrity checks to ensure that data is being completely and accurately captured in source systems and transmitted to sanction screening systems, as well as the reconciliation of transaction codes across core banking and sanction screening systems."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Testing may also utilize quantitative data quality standards or benchmarks to track data quality over time and specify a threshold or range beyond which data irregularities or other data quality issues will require corrective action."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "Reviews and Updates"
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "This document shall be reviewed and updated at least once every three years by concerned Business Units or whenever deemed necessary."
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "AML Statement and Whistleblowing Unit"
+    },
+    {
+      "reference_id": "Page 34",
+      "extracted_text": "AML Statement and Whistleblowing Unit"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Anti-Money Laundering, Counter Terrorist Financing and Sanction Statement"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "In Case of suspecting money laundering or terrorist financing activities and Sanctions*, then you are obliged to report this suspicion to the AML/CTF Division by using the Suspicious Transaction Report (STR)."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Please access the Indicators of Suspected Money Laundering, Terrorist Financing and Sanctions through P&P portal and click on"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Tipping off the customer or any other party of suspicion is considered a crime and the violator will be held totally responsible."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "To report any Suspicious activities related to the Anti-Money Laundering and Combating the Financing of Terrorism and Sanctions Department, please utilize any of the following communication channels:"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "AML/CTF:"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "E-mail: (UAE-COMPLIANCE-STR UAE-COMPLIANCE-STR@.com)"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Direct Phone: (+)"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Sanctions:"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "E-mail: (UAE-COMPLIANCE-STR UAE-COMPLIANCE-STR@.com)"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Reporting to the Whistleblowing Unit"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Your commitment to ethical standards within is of utmost importance."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "If you are aware of any violations that have been committed, are being committed or are about to be committed in order to fraud, embezzlement, corruption, bribery and illegal behavior, we encourage you to report them immediately through the designated Whistleblowing reporting channels, your reporting will contribute to ensuring the integrity of the Bank."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Your vigilance helps ensure the integrity of our bank."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "To report such incidents, please utilize any of the following communication channels:"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Direct Phone: (0)"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "E-mail: UAE-COMPLIANCE-STR UAE-COMPLIANCE-STR@.com"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Please rest assured that we are committed to safeguarding the confidentiality of whistleblowers."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Your identity will remain anonymous, and you will not face any retaliation for bringing such matters to our attention."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Thank you for your dedication to our shared values and the continued success of our Bank."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Shariah Governance Requirements"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "For any Shariah services a request application must be filed by Business Unit (product owner), and to be sent to Shariah Support Development SSD department, as SSD is the contact point in Shariah Division to ensure the completeness and Shariah reasonable requirements are met and support business submission for Shariah approvals, opinions, or sign off, related to products development, for matters related to Product(s)' development/enhancement."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Business Unit (policy owner) is required to Obtain Shariah approval on:"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "a. All Islamic product(s) and services development, amendment (enhancement or deletion) of product features including all Islamic structures, executive documentation such as agreements, contracts, addendums, and forms, notifications, and scripts."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "b. Any fees, commissions, other revenue related to the Islamic products or services."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "Business Unit (policy owner) is required to Obtain Shariah compliance sign off on:"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "a. Policies & procedure,"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "b. New Product or Services template (NPST)"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "c. Product Program"
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "d. System changes, changes request."
+    },
+    {
+      "reference_id": "Page 35",
+      "extracted_text": "e. System documentations: Term of Reference (TOR),"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "f. Business Requirements Document (BRD),"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "g. Solution Specification Document (SSD) Function System Document (FSD)."
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "h. User Acceptance Test Scenario (UAT),"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "i. Marketing materials,"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "j. Social media and campaigns, road shows if any, and"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "k. Training materials, etc."
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Product Launch Notification:"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Upon a successful launch classified Shariah Compliant product, or services, Business Unit (policy owner) is required to notify the Shariah Internal Control include (Shariah Compliance and Shariah Audit)."
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Risk Requirements from fraud and social engineering"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Counter Fraud"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "The Counter Fraud Guide at, which is part of the financial fraud prevention system under the Central Bank's policies, aims to assist customers in establishing minimum procedures and policies to combat cases of financial fraud they may encounter, and enhance measures to mitigate the risks of financial fraud."
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Social Engineering"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Governance and strategy to prevent financial fraud and alert the client through various means regularly to avoid fraud."
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "If suspicion of any fraudulent transactions is proven, please send an email to:"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Fraud_Prevention Fraud Prevention@.com"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Appendices"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Annex 1. Red Flag Indicators for TF and PF"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Accurately identifying and assessing the TF and PF risks of a customer or business relationship is critical for appropriately managing these risks."
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "A single indicator on its own may seem insignificant, but when combined with others it could provide reasonable grounds to suspect that the transaction is related to TF or PF activity."
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Red Flag Indicators for TF"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Potentially Suspicious Activity That May Indicate Terrorist Financing Published in the FFIEC BSA/AML Examination Manual"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Activity Inconsistent with the Customer's Business:"
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Funds are generated by a business owned by persons of the same origin or by a business that involves persons of the same origin from higher-risk countries (e.g., countries designated by national authorities and FATF as non-cooperative countries and territories)."
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "The stated occupation of the customer is not commensurate with the type or level of activity."
+    },
+    {
+      "reference_id": "Page 36",
+      "extracted_text": "Persons involved in currency transactions share an address or phone number, particularly when the address is also a business location or does not seem to correspond to the stated occupation (e.g., student, unemployed, or self-employed)."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Regarding nonprofit or charitable organizations, financial transactions occur for which there appears to be no logical economic purpose or in which there appears to be no link between the stated activity of the organization and the other parties in the transaction."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "A safe deposit box opened on behalf of a commercial entity when the business activity of the customer is unknown or such activity does not appear to justify the use of a safe deposit box."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Funds Transfers:"
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "A large number of incoming or outgoing funds transfers take place through a business account, and there appears to be no logical business or other economic purpose for the transfers, particularly when this activity involves higher-risk locations."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Funds transfers are ordered in small amounts in an apparent effort to avoid triggering identification or reporting requirements."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Funds transfers do not include information on the originator, or the person on whose behalf the transaction is conducted, when the inclusion of such information would be expected."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Multiple personal and business accounts or the accounts of nonprofit organizations or charities are used to collect and funnel funds to a small number of foreign beneficiaries."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Foreign exchange transactions are performed on behalf of a customer by a third party, followed by funds transfers to locations having no apparent business connection with the customer or to higher- risk countries."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Other Transactions That Appear Unusual or Suspicious:"
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Transactions involving foreign currency exchanges are followed within a short time by funds transfers to higher-risk locations."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Multiple accounts are used to collect and funnel funds to a small number of foreign beneficiaries, both persons and businesses, particularly in higher-risk locations."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "A customer obtains a credit instrument or engages in commercial financial transactions involving the movement of funds to or from higher-risk locations when there appear to be no logical business reasons for dealing with those locations."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Banks from higher-risk locations open accounts."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Funds are sent or received via international transfers from or to higher-risk locations."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Insurance Manual loans or Manual surrender values that are subject to a substantial surrender charge."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Terrorist Financing Indicators Published by FINTRAC (Canada's Financial Intelligence Unit)"
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Transactions involving certain high-risk jurisdictions such as locations in the midst of or in proximity to, armed conflict where terrorist groups operate or locations which are subject to weaker ML/TF controls."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "An account opened in the name of an entity, a foundation or association, which may be linked or involved with a suspected terrorist organization."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "The use of funds by a non-profit organization is not consistent with the purpose for which it was established."
+    },
+    {
+      "reference_id": "Page 37",
+      "extracted_text": "Raising donations in an unofficial or unregistered manner."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Client identified by media or law enforcement as having travelled, attempted or intended to travel to high-risk jurisdictions (including cities or districts of concern), specifically countries (and adjacent countries) under conflict and/or political instability or known to support terrorist activities and organizations."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Transactions involve individual(s) or entity(ies) identified by media and/or Sanctions List as being linked to a terrorist organization or terrorist activities."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Law enforcement information provided which indicates individual(s) or entity(ies) may be linked to a terrorist organization or terrorist activities."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Client conducted travel-related purchases (e.g. purchase of airline tickets, travel visa, passport, etc.) linked to high-risk jurisdictions (including cities or districts of concern), specifically countries (and adjacent countries) under conflict and/or political instability or known to support terrorist activities and organizations."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Individual or entity's online presence supports violent extremism or radicalization."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Client donates to a cause that is subject to derogatory information that is publicly available (e.g. crowdfunding initiative, charity, non-profit organization, non-government organization, etc.)."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Red Flag Indicators for PF"
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Indicators of Possible Proliferation Financing as mentioned in Annex 1 to the 2008 FATF Typologies Report on Proliferation Financing7"
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Transaction involves person or entity in foreign country of proliferation concern."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Transaction involves person or entity in foreign country of diversion concern."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "The customer or counterparty or its address is similar to one of the parties found on publicly available lists of “denied persons\" or has a history of export control contraventions."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Customer activity does not match business profile, or end-user information does not match end- user's business profile."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "A freight forwarding firm is listed as the product's final destination."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Order for goods is placed by firms or persons from foreign countries other than the country of the stated end-user."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Transaction involves shipment of goods incompatible with the technical level of the country to which it is being shipped, (e.g. semiconductor manufacturing equipment being shipped to a country that has no electronics industry)."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Transaction involves possible shell companies (e.g. companies do not have a high level of capitalization or displays other shell company indicators)."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Transaction demonstrates links between representatives of companies exchanging goods i.e. same owners or management."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Circuitous route of shipment (if available) and/or circuitous route of financial transaction."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Trade finance transaction involves shipment route (if available) through country with weak export control laws or weak enforcement of export control laws."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Transaction involves persons or companies (particularly trading companies) located in countries with weak export control laws or weak enforcement of export control laws."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Transaction involves shipment of goods inconsistent with normal geographic trade patterns (e.g. does the country involved normally export/import good involved?)."
+    },
+    {
+      "reference_id": "Page 38",
+      "extracted_text": "Transaction involves financial institutions with known deficiencies in AML/CFT controls and/or domiciled in countries with weak export control laws or weak enforcement of export control laws."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Based on the documentation obtained in the transaction, the declared value of the shipment was obviously under-valued vis-à-vis the shipping cost."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Inconsistencies in information contained in trade documents and financial flows, such as names, companies, addresses, final destination etc."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Pattern of wire transfer activity that shows unusual patterns or has no apparent purpose."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Customer vague/incomplete on information it provides, resistant to providing additional information when queried."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "New customer requests letter of credit transaction awaiting approval of new account."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Wire instructions or payment from or due to parties not identified on the original letter of credit or other documentation."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Involvement of items controlled under WMD export control regimes or national control regimes."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Involvement of a person connected with a country of proliferation concern (e.g. a dual-national), and/or dealing with complex equipment for which he/she lacks technical background."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Use of cash or precious metals (e.g. gold) in transactions for industrial items"
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Involvement of a small trading, brokering or intermediary company, often carrying out business inconsistent with their normal business."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Involvement of a customer or counterparty, declared to be a commercial business, whose transactions suggest they are acting as a money-remittance business."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Transactions between companies on the basis of “ledger” arrangements that obviate the need for international financial transactions."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Customers or counterparties to transactions are linked (e.g. they share a common physical address, IP address or telephone number, or their activities may be coordinated)."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Involvement of a university in a country of proliferation concern."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Description of goods on trade or financial documentation is nonspecific, innocuous or misleading."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Evidence that documents or other representations (e.g. relating to shipping, customs, or payment) are fake or fraudulent."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Use of personal account to purchase industrial items."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Red Flag Indicators for Potential Sanctions Circumventions"
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Some Red Flags or Situations to Identify Potential Sanctions Circumventions Published in the Executive Office's \"Typologies on the circumvention of Targeted Sanctions against Terrorism and the Proliferation of Weapons of Mass Destruction\""
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "The following are some red flags or situations that could be looked at more closely or monitored by financial institutions and designated non-financial businesses or professions to identify potential sanctions circumventions of your clients, their business, or their transactions."
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Dealings in sectors vulnerable for terrorist financing and/or proliferation of weapons of mass destructions, for example"
+    },
+    {
+      "reference_id": "Page 39",
+      "extracted_text": "Financial sector"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Hawalas or other money transfer services providers"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Oil and gas sector"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Non-profit organizations • International trade"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Dealings, directly or through a client of your client, with high-risk countries for terrorism financing."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Dealings, directly or through a client of your client, with sanctioned countries or territories where sanctioned persons are known to operate."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "The use of shell companies through which funds can be moved locally and internationally by misappropriating the commercial sector in the UAE."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Dealings with sanctioned goods or under embargo."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "For example:"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Weapons"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Oil or other commodities"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Luxury goods (for DPRK sanctions)"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Dealings with dual-used goods."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Dealings with controlled substances."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Identifying documents that seemed to be forged or counterfeited."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Identifying tampered or modified documents with no apparent explanation, especially those related to international trade."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Use of intermediaries"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "When the flows of funds exceed those of normal business (revenues or turnover)."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "The activity developed or financed does not relate to the original or intended purpose of the company o entity."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "For example:"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "For companies, they are importing high-end technology devices, but they are registered as a company that commercializes nuts."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "For a non-profit organization, they are exporting communication devices, but they are an entity aimed to provide health services."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Very complex commercial or business deals that seem to be aiming to hide the final destiny of the transaction or the good."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Complex legal entities or arrangements that seem to be aiming to hide the beneficial owner."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Carrying out of multiple ATM cash withdrawals in short succession (potentially below the daily cash reporting threshold) across various locations in territories where sanctioned people have influence or in the border of sanctioned countries"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Irregularities during the CDD process which could include, but is not limited to:"
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "a) Inaccurate information about the source of funds and/or the relationship with the counterparty."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "b) Refusal to honor requests to provide additional KYC documentation or to provide clarity on the final beneficiary of the funds or goods."
+    },
+    {
+      "reference_id": "Page 40",
+      "extracted_text": "Suspicion of forged identity documents."
+    }
+  ],
+  "model": "gemini-2.5-flash-lite",
+  "error": null,
+  "usage": {
+    "promptTokens": 10868,
+    "completionTokens": 41991,
+    "totalTokens": 52859
+  },
+  "responseTime": "2026-06-23T11:32:02.3309363Z"
+}
