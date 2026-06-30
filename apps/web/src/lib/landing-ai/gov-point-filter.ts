@@ -65,6 +65,11 @@ export function isNamedSectionSummaryPoint(pointId: string): boolean {
   return /^[A-Za-z]/.test(id) && id.includes(' - ') && !/^Article\b/i.test(id);
 }
 
+/** Extract artifact: bare "2" / "3" labels in definition lists — not section ids like 2.1. */
+export function isBareDefinitionLabel(pointId: string): boolean {
+  return /^\d+$/.test(pointId.trim());
+}
+
 export function numericSubPointSectionKey(pointId: string): string | null {
   const norm = normalizeNumericPointId(pointId);
   if (!norm) return null;
@@ -247,16 +252,19 @@ export function rollupGovPointsToSections(
   for (const point of points) {
     const subKey = numericSubPointSectionKey(point.point_id);
     const headerKey = numericSectionHeaderKey(point.point_id, allPointIds);
-    const groupKey = subKey ?? headerKey;
+    const headingKey = sectionRollupKeyFromHeading(point);
+    const groupKey = subKey ?? headerKey ?? headingKey;
 
     if (groupKey) {
       const list = groups.get(groupKey) ?? [];
       list.push(point);
       groups.set(groupKey, list);
-      if (subKey) {
+      if (subKey || headingKey) {
         skipped.push({
           point,
-          reason: `rolled up into section ${groupKey} (whole-section compare)`,
+          reason: headingKey
+            ? `rolled up into section ${groupKey} (section heading compare)`
+            : `rolled up into section ${groupKey} (whole-section compare)`,
         });
       }
     } else {
@@ -312,6 +320,11 @@ export function filterComparableGovPoints(points: GovPoint[]): {
       reason = 'section summary duplicate (use numbered sub-points)';
     }
 
+    if (ok && isBareDefinitionLabel(point.point_id)) {
+      ok = false;
+      reason = 'definition list label (not a requirement section id)';
+    }
+
     if (ok) leafComparable.push(point);
     else skipped.push({ point, reason: reason ?? 'informational' });
   }
@@ -345,6 +358,11 @@ export function filterComparableGovLeafPoints(points: GovPoint[]): {
       reason = 'section summary duplicate (use numbered sub-points)';
     }
 
+    if (ok && isBareDefinitionLabel(point.point_id)) {
+      ok = false;
+      reason = 'definition list label (not a requirement point id)';
+    }
+
     if (ok && isNumericParentWithChildren(point.point_id, allPointIds)) {
       ok = false;
       reason = 'section header skipped (compare leaf sub-points only)';
@@ -358,29 +376,69 @@ export function filterComparableGovLeafPoints(points: GovPoint[]): {
   return { comparable, skipped };
 }
 
-/** Top-level chapter id, e.g. "2.4.1" → "2", "3.1" → "3". */
-export function getChapterKey(pointId: string): string | null {
-  const norm = normalizeNumericPointId(pointId);
-  if (!norm) return null;
-  return norm.split('.')[0] ?? null;
+/** Chapter from section heading, e.g. "4. NOTIFICATION…" → "4". */
+export function chapterFromSection(section?: string): string | null {
+  const s = (section ?? '').trim();
+  const m = s.match(/^(\d+)(?:\.|\s|$)/);
+  return m?.[1] ?? null;
 }
 
-/** Mid-level section group, e.g. "2.4.1" → "2.4", "2.3" → "2.3". */
-export function getSectionGroupKey(pointId: string): string | null {
-  const norm = normalizeNumericPointId(pointId);
-  if (!norm) return null;
-  const parts = norm.split('.');
-  if (parts.length >= 3) return `${parts[0]}.${parts[1]}`;
-  if (parts.length === 2) return norm;
-  return null;
+/** Section group from heading, e.g. "2.4. Internal Controls" → "2.4", "4. NOTIFICATION…" → "4". */
+export function sectionGroupFromSection(section?: string): string | null {
+  const s = (section ?? '').trim();
+  const m = s.match(/^(\d+\.\d+|\d+)(?:\.|\s)/);
+  return m?.[1] ?? null;
 }
 
-/** True when pointId equals prefix or is a child (2.4.1 matches prefix "2" or "2.4"). */
-export function pointMatchesPrefix(pointId: string, prefix: string): boolean {
-  const norm = normalizeNumericPointId(pointId);
+/** Rollup key for non-numeric ids (Article 21(5)) under a numbered section heading. */
+export function sectionRollupKeyFromHeading(point: GovPoint): string | null {
+  if (normalizeNumericPointId(point.point_id)) return null;
+  return sectionGroupFromSection(point.section);
+}
+
+/** Strip source prefix from merged gov ids, e.g. CD:3.2 → 3.2 */
+export function stripGovPointPrefix(pointId: string): string {
+  const idx = pointId.indexOf(':');
+  return idx >= 0 ? pointId.slice(idx + 1).trim() : pointId.trim();
+}
+
+/** Top-level chapter id, e.g. "2.4.1" → "2"; "Article 21(5)" + section "4. …" → "4". */
+export function getChapterKey(pointId: string, section?: string): string | null {
+  const id = stripGovPointPrefix(pointId);
+  const norm = normalizeNumericPointId(id);
+  if (norm) return norm.split('.')[0] ?? null;
+  return chapterFromSection(section);
+}
+
+/** Mid-level section group, e.g. "2.4.1" → "2.4"; Article points under "4. …" → "4". */
+export function getSectionGroupKey(pointId: string, section?: string): string | null {
+  const id = stripGovPointPrefix(pointId);
+  const norm = normalizeNumericPointId(id);
+  if (norm) {
+    const parts = norm.split('.');
+    if (parts.length >= 3) return `${parts[0]}.${parts[1]}`;
+    if (parts.length === 2) return norm;
+    return null;
+  }
+  return sectionGroupFromSection(section) ?? (id || null);
+}
+
+/** True when pointId equals prefix or is a child (2.4.1 matches "2" or "2.4"). */
+export function pointMatchesPrefix(
+  pointId: string,
+  prefix: string,
+  section?: string,
+): boolean {
+  const id = stripGovPointPrefix(pointId);
+  const norm = normalizeNumericPointId(id);
   const p = (normalizeNumericPointId(prefix) ?? prefix.trim()).replace(/\.$/, '');
-  if (!norm || !p) return false;
-  return norm === p || norm.startsWith(`${p}.`);
+  if (!p) return false;
+  if (norm) {
+    return norm === p || norm.startsWith(`${p}.`);
+  }
+  const chapter = chapterFromSection(section);
+  const secGroup = sectionGroupFromSection(section);
+  return chapter === p || secGroup === p || Boolean(secGroup?.startsWith(`${p}.`));
 }
 
 export type GovPointChapterGroup = {
@@ -394,9 +452,10 @@ export function groupGovPointsByChapter(points: GovPoint[]): GovPointChapterGrou
   const chapterMap = new Map<string, Map<string, GovPoint[]>>();
 
   for (const point of points) {
-    const chapter = getChapterKey(point.point_id);
+    const chapter = getChapterKey(point.point_id, point.section);
     if (!chapter) continue;
-    const sectionKey = getSectionGroupKey(point.point_id) ?? point.point_id.trim();
+    const sectionKey =
+      getSectionGroupKey(point.point_id, point.section) ?? point.point_id.trim();
 
     if (!chapterMap.has(chapter)) chapterMap.set(chapter, new Map());
     const sectionMap = chapterMap.get(chapter)!;
@@ -408,7 +467,9 @@ export function groupGovPointsByChapter(points: GovPoint[]): GovPointChapterGrou
     .sort(([a], [b]) => compareGovPointIds(a, b))
     .map(([chapter, sectionMap]) => ({
       chapter,
-      points: points.filter((p) => getChapterKey(p.point_id) === chapter),
+      points: points.filter(
+        (p) => getChapterKey(p.point_id, p.section) === chapter,
+      ),
       sections: [...sectionMap.entries()]
         .sort(([a], [b]) => compareGovPointIds(a, b))
         .map(([key, sectionPoints]) => ({ key, points: sectionPoints })),

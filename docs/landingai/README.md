@@ -11,6 +11,7 @@ Landing AI **Agentic Document Extraction (ADE)** is used to parse government req
 | [03-developer-setup-guide.md](./03-developer-setup-guide.md) | Sign up, API key, env vars, first test |
 | [04-output-formats.md](./04-output-formats.md) | Compliance PDF report + annotated internal PDF |
 | [05-bcp-api-endpoints.md](./05-bcp-api-endpoints.md) | NestJS routes for parse / extract / status |
+| [DUAL_VERIFY_AND_ANALYSIS_WORKFLOW.md](../landing-ai/DUAL_VERIFY_AND_ANALYSIS_WORKFLOW.md) | Box workflows, models, prompts (section/leaf + dual-verify) |
 
 ## Related
 

@@ -1,8 +1,8 @@
 const AZURE_MODELS = new Set(['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo', 'gpt-5']);
 
 const GEMINI_FALLBACK_CHAIN = [
-  'gemini-3.1-pro-preview',
   'gemini-3.5-flash',
+  'gemini-3.1-pro-preview',
   'gemini-2.5-flash',
   'gemini-flash-latest',
   'gemini-2.5-flash-lite',

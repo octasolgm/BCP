@@ -21,8 +21,24 @@ import {
 } from '@nestjs/swagger';
 import { LandingAiService } from './services/landing-ai.service';
 import { LandingAiSeedService } from './services/landing-ai-seed.service';
-import type { ExtractSchemaKey, GovRequirementPoint } from './types/landing-ai.types';
+import type {
+  CompareSessionGranularity,
+  ExtractSchemaKey,
+  GovRequirementPoint,
+} from './types/landing-ai.types';
 import { BUILTIN_EXTRACT_DOCS, findBuiltinDoc } from './builtin-docs';
+
+function parseSessionGranularity(
+  value?: string,
+): CompareSessionGranularity {
+  const g = value?.trim().toLowerCase();
+  if (g === 'leaf') return 'leaf';
+  if (g === 'dual-section') return 'dual-section';
+  if (g === 'dual-leaf') return 'dual-leaf';
+  if (g === 'amlcft-dual-section') return 'amlcft-dual-section';
+  if (g === 'amlcft-dual-leaf') return 'amlcft-dual-leaf';
+  return 'section';
+}
 
 @ApiTags('Landing AI')
 @Controller('landing-ai')
@@ -223,16 +239,17 @@ export class LandingAiController {
   @ApiQuery({
     name: 'granularity',
     required: false,
-    description: 'Filter: section | leaf',
+    description: 'Filter: section | leaf | dual-section | dual-leaf',
   })
   listComplianceSessions(
     @Query('limit') limit?: string,
     @Query('granularity') granularity?: string,
   ) {
     const n = limit ? Math.min(Number(limit) || 30, 100) : 30;
-    const gran =
-      granularity?.trim().toLowerCase() === 'leaf' ? 'leaf' : 'section';
-    return this.landingAiService.listComplianceSessions(n, gran);
+    return this.landingAiService.listComplianceSessions(
+      n,
+      parseSessionGranularity(granularity),
+    );
   }
 
   @Get('compliance-sessions/:id')
@@ -240,15 +257,16 @@ export class LandingAiController {
   @ApiQuery({
     name: 'granularity',
     required: false,
-    description: 'section | leaf — filters compare-cache reload',
+    description: 'section | leaf | dual-section | dual-leaf',
   })
   getComplianceSession(
     @Param('id') id: string,
     @Query('granularity') granularity?: string,
   ) {
-    const mode =
-      granularity?.trim().toLowerCase() === 'leaf' ? 'leaf' : 'section';
-    return this.landingAiService.getComplianceSession(id, mode);
+    return this.landingAiService.getComplianceSession(
+      id,
+      parseSessionGranularity(granularity),
+    );
   }
 
   @Post('compliance-sessions')
@@ -266,7 +284,7 @@ export class LandingAiController {
       skippedJson?: unknown;
       resultsJson: unknown;
       summaryJson?: unknown;
-      compareGranularity?: 'section' | 'leaf';
+      compareGranularity?: CompareSessionGranularity;
     },
   ) {
     if (!body?.resultsJson || !body.govFileHash || !body.internalFileHash) {
@@ -298,9 +316,15 @@ export class LandingAiController {
     description: 'section | leaf (default section)',
   })
   syncSessionFromCompareCache(@Query('granularity') granularity?: string) {
-    const gran =
-      granularity?.trim().toLowerCase() === 'leaf' ? 'leaf' : 'section';
-    return this.landingAiService.syncSessionFromCompareCache(gran);
+    const gran = parseSessionGranularity(granularity);
+    if (gran.startsWith('dual-')) {
+      throw new BadRequestException(
+        'Compare cache sync applies to single-pass section/leaf only',
+      );
+    }
+    return this.landingAiService.syncSessionFromCompareCache(
+      gran as 'section' | 'leaf',
+    );
   }
 
   @Get('jobs')

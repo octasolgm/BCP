@@ -297,7 +297,9 @@ export function ComplianceWorkbench({ granularity }: ComplianceWorkbenchProps) {
   }
 
   function toggleGovPointsByPrefix(prefix: string) {
-    const inGroup = govPoints.filter((p) => pointMatchesPrefix(p.point_id, prefix));
+    const inGroup = govPoints.filter((p) =>
+      pointMatchesPrefix(p.point_id, prefix, p.section),
+    );
     const allSelected =
       inGroup.length > 0 &&
       inGroup.every((p) => selectedGovIds.has(p.point_id));

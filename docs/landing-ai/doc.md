@@ -5,6 +5,8 @@ This document describes the end-to-end flow for comparing **government requireme
 **UI:** `http://localhost:3000/landing-ai`  
 **API:** `http://localhost:4000/landing-ai/*`
 
+**See also:** [DUAL_VERIFY_AND_ANALYSIS_WORKFLOW.md](./DUAL_VERIFY_AND_ANALYSIS_WORKFLOW.md) — box diagrams for section/leaf compare, dual-verify pipeline, models, and all prompts.
+
 ---
 
 ## TL;DR — How it runs in 30 seconds

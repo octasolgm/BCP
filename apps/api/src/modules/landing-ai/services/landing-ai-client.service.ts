@@ -413,20 +413,9 @@ export class LandingAiClientService {
       status = 'Partial Compliant';
     }
 
-    if (status === 'Compliant' && missingSubConditions.length > 0) {
-      status = 'Partial Compliant';
-    }
-
-    if (
-      status === 'Partial Compliant' &&
-      missingSubConditions.length === 0 &&
-      !lacksEvidence &&
-      (!hasCap || this.isGenericCorrectiveAction(corrective ?? ''))
-    ) {
-      status = 'Compliant';
-      corrective = undefined;
-      responsibility = undefined;
-    }
+    // Status from the model is based on semantic compare — do not downgrade/upgrade
+    // Compliant ↔ Partial using keyword token overlap (missingSubConditions is
+    // used only to build numbered CAP fallbacks when the model returns generic gaps).
 
     if (status === 'Partial Compliant' && confidence >= 100) {
       confidence = 85;
@@ -523,6 +512,7 @@ export class LandingAiClientService {
     return [body];
   }
 
+  /** Fallback only — used to suggest CAP items when model CAP is generic; not for status. */
   private subConditionAppearsCovered(
     subCondition: string,
     coveredText: string,

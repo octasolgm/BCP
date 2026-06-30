@@ -141,8 +141,10 @@ export class LandingAiCacheService {
     pointId: string,
     promptVersion = 'v2',
   ): string {
+    // Bump revision when v2 prompt logic changes (e.g. semantic-intent compare).
+    const revision = promptVersion === 'v1' ? 'v1' : 'v2-semantic';
     return createHash('sha256')
-      .update(`${internalFileHash}:${pointId}:${promptVersion}`)
+      .update(`${internalFileHash}:${pointId}:${revision}`)
       .digest('hex');
   }
 

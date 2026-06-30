@@ -6,10 +6,12 @@ import {
 import type { UploadedPdfFile } from '../../ai/types/ai-response.types';
 import { BUILTIN_EXTRACT_DOCS } from '../builtin-docs';
 import { filterComparableGovLeafPoints, filterComparableGovPoints } from '../utils/gov-point-filter';
+import { docxBufferToMarkdown, isDocxFileName } from '../utils/document-text.util';
 import { mergeSessionResults } from '../utils/session-results-merge';
 import { LandingAiCacheService } from './landing-ai-cache.service';
 import { LandingAiClientService } from './landing-ai-client.service';
 import type {
+  CompareSessionGranularity,
   ComplianceComparisonResult,
   ComplianceSessionLoadResponse,
   ComplianceSessionSummary,
@@ -48,11 +50,6 @@ export class LandingAiService {
     buffer: Buffer,
     fileName: string,
   ): Promise<LandingAiParseResponse> {
-    if (!this.client.isConfigured()) {
-      throw new ServiceUnavailableException(
-        'Landing AI not configured. Set VISION_AGENT_API_KEY.',
-      );
-    }
     if (!buffer?.length) {
       throw new BadRequestException('File is empty');
     }
@@ -67,7 +64,7 @@ export class LandingAiService {
         fileSizeBytes: buffer.length,
         status: 'success',
         creditUsage: 0,
-        model: this.client.getParseModel(),
+        model: isDocxFileName(fileName) ? 'mammoth-docx' : this.client.getParseModel(),
         errorMessage: 'cache_hit',
       });
       return {
@@ -78,6 +75,60 @@ export class LandingAiService {
         markdown: cached.markdown,
         creditUsage: 0,
       };
+    }
+
+    if (isDocxFileName(fileName)) {
+      const started = Date.now();
+      try {
+        const markdown = await docxBufferToMarkdown(buffer);
+        const durationMs = Date.now() - started;
+        await this.cache.saveParseCache({
+          fileHash,
+          fileName,
+          markdown,
+          parseModel: 'mammoth-docx',
+          creditUsage: 0,
+        });
+        await this.cache.logJob({
+          operation: 'parse',
+          fileName,
+          fileHash,
+          fileSizeBytes: buffer.length,
+          status: 'success',
+          creditUsage: 0,
+          durationMs,
+          model: 'mammoth-docx',
+          responseJson: { markdownLength: markdown.length },
+        });
+        return {
+          success: true,
+          cached: false,
+          fileName,
+          fileHash,
+          markdown,
+          creditUsage: 0,
+          durationMs,
+        };
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'DOCX parse failed';
+        await this.cache.logJob({
+          operation: 'parse',
+          fileName,
+          fileHash,
+          fileSizeBytes: buffer.length,
+          status: 'error',
+          errorMessage: message,
+          model: 'mammoth-docx',
+        });
+        throw new BadRequestException(message);
+      }
+    }
+
+    if (!this.client.isConfigured()) {
+      throw new ServiceUnavailableException(
+        'Landing AI not configured. Set VISION_AGENT_API_KEY.',
+      );
     }
 
     const started = Date.now();
@@ -275,7 +326,7 @@ export class LandingAiService {
     skippedJson: unknown;
     resultsJson: unknown;
     summaryJson?: unknown;
-    compareGranularity?: 'section' | 'leaf';
+    compareGranularity?: CompareSessionGranularity;
   }) {
     if (!(await this.cache.isCacheEnabled())) {
       throw new ServiceUnavailableException(
@@ -374,7 +425,7 @@ export class LandingAiService {
 
   async listComplianceSessions(
     limit?: number,
-    compareGranularity?: 'section' | 'leaf',
+    compareGranularity?: CompareSessionGranularity,
   ): Promise<ComplianceSessionsListResponse> {
     const sessionsTableReady = await this.cache.isComplianceSessionsTableReady();
     const compareCacheCount = await this.cache.countCompareCacheRows();
@@ -391,8 +442,11 @@ export class LandingAiService {
     const sessions: ComplianceSessionSummary[] = rows
       .map((row) => {
         const summary = row.summary_json as { compareGranularity?: string } | null;
-        const gran =
-          summary?.compareGranularity === 'leaf' ? 'leaf' : 'section';
+        const gran = (summary?.compareGranularity ??
+          'section') as CompareSessionGranularity;
+        const granLabel = gran.startsWith('dual-')
+          ? gran.replace('dual-', 'dual ')
+          : gran;
         return {
           id: row.id,
           source: 'session' as const,
@@ -403,19 +457,23 @@ export class LandingAiService {
           totalGovPoints: row.total_gov_points,
           skippedPoints: row.skipped_points,
           createdAt: row.created_at,
-          compareGranularity: gran as 'section' | 'leaf',
-          label: `${row.gov_file_name} vs ${row.internal_file_name} · ${gran} · ${row.compared_points}/${row.total_gov_points} pts · ${new Date(row.created_at).toLocaleString()}`,
+          compareGranularity: gran,
+          label: `${row.gov_file_name} vs ${row.internal_file_name} · ${granLabel} · ${row.compared_points}/${row.total_gov_points} pts · ${new Date(row.created_at).toLocaleString()}`,
         };
       })
-      .filter(
-        (s) =>
-          !compareGranularity ||
-          s.compareGranularity === compareGranularity ||
-          (compareGranularity === 'section' && !s.compareGranularity),
-      );
+      .filter((s) => {
+        if (!compareGranularity) return true;
+        return s.compareGranularity === compareGranularity;
+      });
 
     const govDoc = BUILTIN_EXTRACT_DOCS.find((d) => d.schemaKey === 'gov_requirement_points');
-    if (govDoc && internalDoc && compareCacheCount > 0) {
+    if (
+      govDoc &&
+      internalDoc &&
+      compareCacheCount > 0 &&
+      compareGranularity &&
+      !compareGranularity.startsWith('dual-')
+    ) {
       const gran = compareGranularity ?? 'section';
       const hasSessionForGran = sessions.some(
         (s) => s.source === 'session' && s.comparedPoints > 0,
@@ -467,10 +525,15 @@ export class LandingAiService {
 
   async getComplianceSession(
     id: string,
-    granularity: 'section' | 'leaf' = 'section',
+    granularity: CompareSessionGranularity = 'section',
   ): Promise<ComplianceSessionLoadResponse> {
     if (id === 'compare-cache' || id.startsWith('compare-cache:')) {
-      const gran = id.includes(':leaf') ? 'leaf' : granularity;
+      if (granularity.startsWith('dual-')) {
+        throw new BadRequestException(
+          'Compare cache reload is for single-pass section/leaf only',
+        );
+      }
+      const gran = id.includes(':leaf') ? 'leaf' : granularity === 'leaf' ? 'leaf' : 'section';
       const govDoc = BUILTIN_EXTRACT_DOCS.find((d) => d.schemaKey === 'gov_requirement_points');
       const internalDoc = BUILTIN_EXTRACT_DOCS.find((d) => d.schemaKey === 'internal_policy_points');
       if (!govDoc || !internalDoc) {
@@ -591,13 +654,31 @@ export class LandingAiService {
       .map((item) => {
         if (!item || typeof item !== 'object') return null;
         const row = item as Record<string, unknown>;
-        const message = typeof row.message === 'string' ? row.message : '';
-        if (!message.trim()) return null;
+        const landingMessage =
+          typeof row.landingMessage === 'string' ? row.landingMessage : '';
+        const llmMessage =
+          typeof row.llmMessage === 'string' ? row.llmMessage : '';
+        const message =
+          typeof row.message === 'string' && row.message.trim()
+            ? row.message
+            : landingMessage || llmMessage;
+        if (!message.trim() && !(landingMessage.trim() && llmMessage.trim())) {
+          return null;
+        }
+        const agreementJson =
+          row.agreementJson &&
+          typeof row.agreementJson === 'object' &&
+          !Array.isArray(row.agreementJson)
+            ? (row.agreementJson as Record<string, unknown>)
+            : undefined;
         return {
           point_id: String(row.point_id ?? ''),
           title: typeof row.title === 'string' ? row.title : undefined,
           text: typeof row.text === 'string' ? row.text : undefined,
-          message,
+          message: message.trim() || landingMessage,
+          ...(landingMessage.trim() ? { landingMessage } : {}),
+          ...(llmMessage.trim() ? { llmMessage } : {}),
+          ...(agreementJson ? { agreementJson } : {}),
         };
       })
       .filter((r): r is NonNullable<typeof r> => Boolean(r?.point_id && r.message));

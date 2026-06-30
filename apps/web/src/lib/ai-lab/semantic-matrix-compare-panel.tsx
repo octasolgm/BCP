@@ -27,7 +27,7 @@ function apiErrorMessage(
 export function SemanticMatrixComparePanel() {
   const granularRef = useRef<HTMLInputElement>(null);
   const executiveRef = useRef<HTMLInputElement>(null);
-  const [aiModel, setAiModel] = useState('gemini-2.5-flash-lite');
+  const [aiModel, setAiModel] = useState('gemini-3.5-flash');
   const [granularName, setGranularName] = useState('');
   const [executiveName, setExecutiveName] = useState('');
   const [busy, setBusy] = useState(false);

@@ -61,6 +61,11 @@ export function isNamedSectionSummaryPoint(pointId: string): boolean {
   return /^[A-Za-z]/.test(id) && id.includes(' - ') && !/^Article\b/i.test(id);
 }
 
+/** Extract artifact: bare "2" / "3" labels in definition lists — not section ids like 2.1. */
+export function isBareDefinitionLabel(pointId: string): boolean {
+  return /^\d+$/.test(pointId.trim());
+}
+
 /** §1 and all subpoints (1.1, 1.2, …) — compare starts at §2. */
 export function isSectionOnePoint(pointId: string, section: string): boolean {
   const id = pointId.trim();
@@ -231,6 +236,19 @@ function mergeSectionGroup(
   };
 }
 
+/** Section group from heading, e.g. "4. NOTIFICATION…" → "4". */
+export function sectionGroupFromSection(section?: string): string | null {
+  const s = (section ?? '').trim();
+  const m = s.match(/^(\d+\.\d+|\d+)(?:\.|\s)/);
+  return m?.[1] ?? null;
+}
+
+/** Rollup key for non-numeric ids (Article 21(5)) under a numbered section heading. */
+export function sectionRollupKeyFromHeading(point: GovRequirementPoint): string | null {
+  if (normalizeNumericPointId(point.point_id)) return null;
+  return sectionGroupFromSection(point.section);
+}
+
 /** Roll 2.1.1…2.1.6 into one compare unit 2.1 (same for 2.2, 2.4, 2.5, 2.6). */
 export function rollupGovPointsToSections(
   points: GovRequirementPoint[],
@@ -246,16 +264,19 @@ export function rollupGovPointsToSections(
   for (const point of points) {
     const subKey = numericSubPointSectionKey(point.point_id);
     const headerKey = numericSectionHeaderKey(point.point_id, allPointIds);
-    const groupKey = subKey ?? headerKey;
+    const headingKey = sectionRollupKeyFromHeading(point);
+    const groupKey = subKey ?? headerKey ?? headingKey;
 
     if (groupKey) {
       const list = groups.get(groupKey) ?? [];
       list.push(point);
       groups.set(groupKey, list);
-      if (subKey) {
+      if (subKey || headingKey) {
         skipped.push({
           point,
-          reason: `rolled up into section ${groupKey} (whole-section compare)`,
+          reason: headingKey
+            ? `rolled up into section ${groupKey} (section heading compare)`
+            : `rolled up into section ${groupKey} (whole-section compare)`,
         });
       }
     } else {
@@ -311,6 +332,11 @@ export function filterComparableGovPoints(points: GovRequirementPoint[]): {
       reason = 'section summary duplicate (use numbered sub-points)';
     }
 
+    if (ok && isBareDefinitionLabel(point.point_id)) {
+      ok = false;
+      reason = 'definition list label (not a requirement section id)';
+    }
+
     if (ok) leafComparable.push(point);
     else skipped.push({ point, reason: reason ?? 'informational' });
   }
@@ -342,6 +368,11 @@ export function filterComparableGovLeafPoints(points: GovRequirementPoint[]): {
     if (ok && isNamedSectionSummaryPoint(point.point_id)) {
       ok = false;
       reason = 'section summary duplicate (use numbered sub-points)';
+    }
+
+    if (ok && isBareDefinitionLabel(point.point_id)) {
+      ok = false;
+      reason = 'definition list label (not a requirement point id)';
     }
 
     if (ok && isNumericParentWithChildren(point.point_id, allPointIds)) {

@@ -101,10 +101,18 @@ export interface ComplianceSessionSummary {
   totalGovPoints: number;
   skippedPoints: number;
   createdAt?: string;
-  compareGranularity?: 'section' | 'leaf';
+  compareGranularity?: CompareSessionGranularity;
   label: string;
   loadable?: boolean;
 }
+
+export type CompareSessionGranularity =
+  | 'section'
+  | 'leaf'
+  | 'dual-section'
+  | 'dual-leaf'
+  | 'amlcft-dual-section'
+  | 'amlcft-dual-leaf';
 
 export interface ComplianceSessionsDiagnostics {
   sessionsTableReady: boolean;
@@ -124,6 +132,12 @@ export interface ComplianceSessionResultItem {
   title?: string;
   text?: string;
   message: string;
+  /** Dual-verify: Landing AI pass output */
+  landingMessage?: string;
+  /** Dual-verify: Phase 2 LLM pass output */
+  llmMessage?: string;
+  /** Dual-verify: agreement check payload */
+  agreementJson?: Record<string, unknown>;
 }
 
 export interface ComplianceSessionLoadResponse {

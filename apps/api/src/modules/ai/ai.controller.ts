@@ -57,7 +57,7 @@ export class AiController {
         },
         aiModel: {
           type: 'string',
-          example: 'gemini-2.5-flash-lite',
+          example: 'gemini-3.5-flash',
           description:
             'gemini-* | gpt-4o | gpt-4o-mini | gpt-3.5-turbo | gpt-5',
         },

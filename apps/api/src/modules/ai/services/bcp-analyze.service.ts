@@ -47,7 +47,7 @@ export class BcpAnalyzeService {
     const rawModel = userSpecifiedModel
       ? aiModel!.trim()
       : this.configService.get<string>('GEMINI_DEFAULT_MODEL') ??
-        'gemini-2.5-flash-lite';
+        'gemini-3.5-flash';
     const allowModelFallback =
       options?.allowModelFallback === true || !userSpecifiedModel;
 

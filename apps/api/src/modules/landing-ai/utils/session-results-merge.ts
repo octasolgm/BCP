@@ -6,15 +6,18 @@ export function mergeSessionResults(
   incoming: ComplianceSessionResultItem[],
 ): ComplianceSessionResultItem[] {
   const map = new Map<string, ComplianceSessionResultItem>();
+  const hasContent = (row: ComplianceSessionResultItem) =>
+    Boolean(
+      row?.point_id &&
+        (row.message?.trim() ||
+          (row.landingMessage?.trim() && row.llmMessage?.trim())),
+    );
+
   for (const row of existing) {
-    if (row?.point_id && row.message?.trim()) {
-      map.set(row.point_id, row);
-    }
+    if (hasContent(row)) map.set(row.point_id, row);
   }
   for (const row of incoming) {
-    if (row?.point_id && row.message?.trim()) {
-      map.set(row.point_id, row);
-    }
+    if (hasContent(row)) map.set(row.point_id, row);
   }
   return [...map.values()].sort((a, b) =>
     a.point_id.localeCompare(b.point_id, undefined, { numeric: true }),
