@@ -48,10 +48,7 @@ apps/api/uploads/*
 apps/api/generated/*
 !apps/api/generated/.gitkeep
 
-# Client Documents (sensitive - never commit)
-docs/client-documents/*.pdf
-docs/client-documents/*.docx
-docs/client-documents/*.xlsx
+# Client Documents — subfolders with large uploads stay local unless added explicitly
 docs/client-documents/requirement-files/*
 docs/client-documents/internal-process-docs/*
 docs/client-documents/sample-excel-sheets/*
