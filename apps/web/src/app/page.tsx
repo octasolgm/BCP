@@ -51,6 +51,18 @@ export default function HomePage() {
           Workbench — Leaf (2.1.1, 2.1.2…)
         </Link>
         <Link
+          href="/landing-ai/dual-verify"
+          className="rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700"
+        >
+          Dual Verify — Section
+        </Link>
+        <Link
+          href="/landing-ai/dual-verify/detail"
+          className="rounded-lg bg-indigo-700 px-4 py-2 text-white hover:bg-indigo-800"
+        >
+          Dual Verify — Leaf
+        </Link>
+        <Link
           href="/upload"
           className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
