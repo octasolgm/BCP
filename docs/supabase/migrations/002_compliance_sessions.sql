@@ -1,5 +1,13 @@
 -- BCP: Persist full Landing AI compliance compare sessions (replay for $0)
 
+CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 CREATE TABLE IF NOT EXISTS landing_ai_compliance_sessions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   session_key TEXT NOT NULL UNIQUE,

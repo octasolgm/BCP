@@ -93,7 +93,7 @@ export interface LandingAiJobRecord {
 
 export interface ComplianceSessionSummary {
   id: string;
-  source: 'session' | 'compare_cache';
+  source: 'session' | 'compare_cache' | 'extract_cache';
   sessionKey?: string;
   govFileName: string;
   internalFileName: string;
@@ -142,7 +142,7 @@ export interface ComplianceSessionResultItem {
 
 export interface ComplianceSessionLoadResponse {
   success: boolean;
-  source: 'session' | 'compare_cache';
+  source: 'session' | 'compare_cache' | 'extract_cache';
   id?: string;
   govFileName: string;
   internalFileName: string;

@@ -1,9 +1,11 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   ServiceUnavailableException,
 } from '@nestjs/common';
 import type { UploadedPdfFile } from '../../ai/types/ai-response.types';
+import { DatabaseMigrationService } from '../../../common/database/database-migration.service';
 import { BUILTIN_EXTRACT_DOCS } from '../builtin-docs';
 import { filterComparableGovLeafPoints, filterComparableGovPoints } from '../utils/gov-point-filter';
 import { docxBufferToMarkdown, isDocxFileName } from '../utils/document-text.util';
@@ -26,9 +28,12 @@ import type {
 
 @Injectable()
 export class LandingAiService {
+  private readonly logger = new Logger(LandingAiService.name);
+
   constructor(
     private readonly client: LandingAiClientService,
     private readonly cache: LandingAiCacheService,
+    private readonly databaseMigration: DatabaseMigrationService,
   ) {}
 
   async getStatus(): Promise<LandingAiStatusResponse> {
@@ -330,13 +335,7 @@ export class LandingAiService {
   }) {
     if (!(await this.cache.isCacheEnabled())) {
       throw new ServiceUnavailableException(
-        'Supabase is not configured — set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in apps/api/.env',
-      );
-    }
-    const tableReady = await this.cache.isComplianceSessionsTableReady();
-    if (!tableReady) {
-      throw new BadRequestException(
-        'Compliance sessions table missing. Run docs/supabase/migrations/002_compliance_sessions.sql in Supabase SQL editor.',
+        'Supabase is not configured — set SUPABASE_URL and SUPABASE_SERVICE_KEY in apps/api/.env',
       );
     }
 
@@ -348,10 +347,14 @@ export class LandingAiService {
     );
 
     const incoming = this.normalizeSessionResults(params.resultsJson);
-    const existingRow = await this.cache.getComplianceSessionByKey(sessionKey);
-    const existing = existingRow
-      ? this.normalizeSessionResults(existingRow.results_json)
-      : [];
+    const existingTableRow = await this.cache.getComplianceSessionByKey(sessionKey);
+    const existingCacheRow =
+      await this.cache.getComplianceSessionFromExtractCacheByKey(sessionKey);
+    const existing = existingTableRow
+      ? this.normalizeSessionResults(existingTableRow.results_json)
+      : existingCacheRow
+        ? this.normalizeSessionResults(existingCacheRow.results_json)
+        : [];
     const merged = mergeSessionResults(existing, incoming);
 
     const summaryJson = {
@@ -361,7 +364,51 @@ export class LandingAiService {
       compareGranularity: granularity,
     };
 
-    const saved = await this.cache.saveComplianceSession({
+    let tableReady = await this.cache.isComplianceSessionsTableReady();
+    if (!tableReady) {
+      try {
+        const applied = await this.databaseMigration.runPendingMigrations();
+        if (applied.length > 0) {
+          this.logger.log(
+            `Applied migrations before session save: ${applied.join(', ')}`,
+          );
+        }
+        tableReady = await this.cache.isComplianceSessionsTableReady();
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : 'Migration failed';
+        this.logger.warn(
+          `Could not auto-migrate compliance_sessions (${message}) — using extract_cache fallback`,
+        );
+      }
+    }
+
+    if (tableReady) {
+      const saved = await this.cache.saveComplianceSession({
+        sessionKey,
+        govFileHash: params.govFileHash,
+        internalFileHash: params.internalFileHash,
+        govFileName: params.govFileName,
+        internalFileName: params.internalFileName,
+        totalGovPoints: params.totalGovPoints,
+        comparedPoints: merged.length,
+        skippedPoints: params.skippedPoints,
+        skippedJson: params.skippedJson,
+        resultsJson: merged,
+        summaryJson,
+      });
+
+      return {
+        success: true,
+        source: 'session' as const,
+        sessionKey,
+        compareGranularity: granularity,
+        comparedPoints: saved.comparedPoints,
+        merged: merged.length > incoming.length,
+      };
+    }
+
+    const saved = await this.cache.saveComplianceSessionToExtractCache({
       sessionKey,
       govFileHash: params.govFileHash,
       internalFileHash: params.internalFileHash,
@@ -373,14 +420,19 @@ export class LandingAiService {
       skippedJson: params.skippedJson,
       resultsJson: merged,
       summaryJson,
+      existingId: existingCacheRow?.id,
     });
 
     return {
       success: true,
+      source: 'extract_cache' as const,
       sessionKey,
+      sessionId: saved.id,
       compareGranularity: granularity,
       comparedPoints: saved.comparedPoints,
       merged: merged.length > incoming.length,
+      message:
+        'Saved to Supabase extract cache (compliance_sessions table missing). Results reload for $0. Apply migration 002 when DATABASE_URL is fixed.',
     };
   }
 
@@ -436,35 +488,50 @@ export class LandingAiService {
       ? Boolean(await this.cache.getParseCache(internalDoc.fileHash))
       : false;
 
-    const rows = sessionsTableReady
+    const tableRows = sessionsTableReady
       ? await this.cache.listComplianceSessions(limit ?? 30)
       : [];
-    const sessions: ComplianceSessionSummary[] = rows
-      .map((row) => {
-        const summary = row.summary_json as { compareGranularity?: string } | null;
-        const gran = (summary?.compareGranularity ??
-          'section') as CompareSessionGranularity;
-        const granLabel = gran.startsWith('dual-')
-          ? gran.replace('dual-', 'dual ')
-          : gran;
-        return {
-          id: row.id,
-          source: 'session' as const,
-          sessionKey: row.session_key,
-          govFileName: row.gov_file_name,
-          internalFileName: row.internal_file_name,
-          comparedPoints: row.compared_points,
-          totalGovPoints: row.total_gov_points,
-          skippedPoints: row.skipped_points,
-          createdAt: row.created_at,
-          compareGranularity: gran,
-          label: `${row.gov_file_name} vs ${row.internal_file_name} · ${granLabel} · ${row.compared_points}/${row.total_gov_points} pts · ${new Date(row.created_at).toLocaleString()}`,
-        };
-      })
-      .filter((s) => {
-        if (!compareGranularity) return true;
-        return s.compareGranularity === compareGranularity;
+    const cacheRows = await this.cache.listComplianceSessionsFromExtractCache(
+      limit ?? 30,
+    );
+
+    const seenKeys = new Set<string>();
+    const sessions: ComplianceSessionSummary[] = [];
+
+    const pushRow = (
+      row: (typeof tableRows)[number],
+      source: 'session' | 'extract_cache',
+    ) => {
+      if (seenKeys.has(row.session_key)) return;
+      seenKeys.add(row.session_key);
+      const summary = row.summary_json as { compareGranularity?: string } | null;
+      const gran = (summary?.compareGranularity ??
+        'section') as CompareSessionGranularity;
+      const granLabel = gran.startsWith('dual-')
+        ? gran.replace('dual-', 'dual ')
+        : gran;
+      sessions.push({
+        id: row.id,
+        source,
+        sessionKey: row.session_key,
+        govFileName: row.gov_file_name,
+        internalFileName: row.internal_file_name,
+        comparedPoints: row.compared_points,
+        totalGovPoints: row.total_gov_points,
+        skippedPoints: row.skipped_points,
+        createdAt: row.created_at,
+        compareGranularity: gran,
+        label: `${row.gov_file_name} vs ${row.internal_file_name} · ${granLabel} · ${row.compared_points}/${row.total_gov_points} pts · ${new Date(row.created_at).toLocaleString()}${source === 'extract_cache' ? ' · Supabase cache' : ''}`,
       });
+    };
+
+    for (const row of tableRows) pushRow(row, 'session');
+    for (const row of cacheRows) pushRow(row, 'extract_cache');
+
+    const filtered = sessions.filter((s) => {
+      if (!compareGranularity) return true;
+      return s.compareGranularity === compareGranularity;
+    });
 
     const govDoc = BUILTIN_EXTRACT_DOCS.find((d) => d.schemaKey === 'gov_requirement_points');
     if (
@@ -475,11 +542,13 @@ export class LandingAiService {
       !compareGranularity.startsWith('dual-')
     ) {
       const gran = compareGranularity ?? 'section';
-      const hasSessionForGran = sessions.some(
-        (s) => s.source === 'session' && s.comparedPoints > 0,
+      const hasSessionForGran = filtered.some(
+        (s) =>
+          (s.source === 'session' || s.source === 'extract_cache') &&
+          s.comparedPoints > 0,
       );
       if (!hasSessionForGran) {
-        sessions.unshift({
+        filtered.unshift({
           id: `compare-cache:${gran}`,
           source: 'compare_cache',
           govFileName: govDoc.fileName,
@@ -498,22 +567,28 @@ export class LandingAiService {
 
     const hints: string[] = [];
     if (!sessionsTableReady) {
-      hints.push(
-        'Run migration 002: npm run db:migrate (or apply docs/supabase/migrations/002_compliance_sessions.sql in Supabase). Full sessions are saved only after this table exists.',
-      );
+      if (cacheRows.length > 0) {
+        hints.push(
+          'Dual-verify sessions are saved in Supabase extract cache (free reload). Optional: run migration 002 for the dedicated sessions table.',
+        );
+      } else {
+        hints.push(
+          'Compliance sessions table missing — saves use Supabase extract cache automatically. Optional: run docs/supabase/migrations/002_compliance_sessions.sql when DATABASE_URL is configured.',
+        );
+      }
     }
     if (compareCacheCount > 0 && !internalParseCached) {
       hints.push(
         `${compareCacheCount} per-point compare result(s) exist, but internal PDF parse is not in Supabase. Click “Parse internal PDF → Supabase” once, then refresh this list.`,
       );
     }
-    if (sessions.length === 0 && compareCacheCount === 0 && sessionsTableReady) {
+    if (filtered.length === 0 && compareCacheCount === 0 && sessionsTableReady) {
       hints.push('Run Compare once — results are stored automatically when the run finishes.');
     }
 
     return {
       success: true,
-      sessions,
+      sessions: filtered,
       diagnostics: {
         sessionsTableReady,
         compareCacheCount,
@@ -554,22 +629,28 @@ export class LandingAiService {
     }
 
     const row = await this.cache.getComplianceSessionById(id);
-    if (!row) {
+    const cacheRow = row
+      ? null
+      : await this.cache.getComplianceSessionFromExtractCacheById(id);
+
+    if (!row && !cacheRow) {
       throw new BadRequestException('Compliance session not found');
     }
 
-    const results = this.normalizeSessionResults(row.results_json);
+    const results = this.normalizeSessionResults(
+      row ? row.results_json : cacheRow!.results_json,
+    );
     return {
       success: true,
-      source: 'session',
-      id: row.id,
-      govFileName: row.gov_file_name,
-      internalFileName: row.internal_file_name,
-      comparedPoints: row.compared_points,
-      totalGovPoints: row.total_gov_points,
-      skippedPoints: row.skipped_points,
+      source: row ? 'session' : 'extract_cache',
+      id: row?.id ?? cacheRow!.id,
+      govFileName: row?.gov_file_name ?? cacheRow!.gov_file_name,
+      internalFileName: row?.internal_file_name ?? cacheRow!.internal_file_name,
+      comparedPoints: row?.compared_points ?? cacheRow!.compared_points,
+      totalGovPoints: row?.total_gov_points ?? cacheRow!.total_gov_points,
+      skippedPoints: row?.skipped_points ?? cacheRow!.skipped_points,
       results,
-      summaryJson: row.summary_json ?? undefined,
+      summaryJson: row?.summary_json ?? cacheRow!.summary_json ?? undefined,
     };
   }
 

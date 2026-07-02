@@ -11,11 +11,20 @@ import { assignFileInput, loadDefaultPdfFile } from '../../lib/ai-lab/pdf';
 import {
   ReferenceComplianceCard,
 } from '../../lib/ai-lab/reference-compliance-view';
+import {
+  AttentionFocusCompact,
+  ColorCodeLegend,
+  MarkdownSummary,
+  StatusTierBoxes,
+} from '../../lib/ai-lab/compliance-report-view';
 import { parseReferenceComplianceBlock } from '../../lib/ai-lab/parse-reference-response';
 import {
   filterComparableGovPoints,
   filterComparableGovLeafPoints,
+  formatGovPointDisplayId,
+  formatChapterLabel,
   formatGovRequirementForDisplay,
+  formatSectionGroupLabel,
   groupGovPointsByChapter,
   pointMatchesPrefix,
   type GovPoint as FilterGovPoint,
@@ -26,7 +35,21 @@ import {
   type AgreementStatus,
   type DualVerifyAgreement,
 } from '../../lib/landing-ai/dual-verify-merge';
+import {
+  buildDualVerifyExecutiveSummary,
+  buildDualVerifySummaryStats,
+  buildPassReport,
+  downloadDualVerifyExcel,
+  downloadDualVerifyPdf,
+  type DualVerifyExportPass,
+} from '../../lib/landing-ai/dual-verify-export';
 import { buildDualVerifyPrompt } from '../../lib/landing-ai/dual-verify-prompt';
+import {
+  listLocalDualVerifySessions,
+  loadLocalDualVerifySession,
+  loadLocalDualVerifySessionById,
+  saveLocalDualVerifySession,
+} from '../../lib/landing-ai/local-dual-verify-session';
 import {
   AMLCFT_GOV_DOCS,
   hashFileList,
@@ -82,10 +105,10 @@ type SessionGranularity =
 
 type SavedAnalysisOption = {
   id: string;
-  source: 'session' | 'compare_cache';
+  source: 'session' | 'compare_cache' | 'extract_cache';
   label: string;
-  comparedPoints: number;
-  totalGovPoints: number;
+  comparedPoints?: number;
+  totalGovPoints?: number;
   loadable?: boolean;
 };
 
@@ -202,6 +225,8 @@ export function DualVerifyWorkbench({
   const [error, setError] = useState('');
   const [note, setNote] = useState('');
   const [parsePrep, setParsePrep] = useState('');
+  const [exportPass, setExportPass] = useState<DualVerifyExportPass>('both');
+  const [exporting, setExporting] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -290,18 +315,40 @@ export function DualVerifyWorkbench({
       const res = await fetch(
         `${API_BASE}/landing-ai/compliance-sessions?limit=30&granularity=${sessionGranularity}`,
       );
-      if (!res.ok) return;
-      const data = await res.json();
-      const sessions = (data.sessions ?? []) as SavedAnalysisOption[];
+      const body = res.ok
+        ? ((await res.json()) as {
+            sessions?: SavedAnalysisOption[];
+            diagnostics?: { hint?: string };
+          })
+        : null;
+      const remote = body?.sessions ?? [];
+      const remoteIds = new Set(remote.map((s) => s.id));
+      const local = listLocalDualVerifySessions(sessionGranularity)
+        .filter((s) => !remoteIds.has(s.id))
+        .map((s) => ({
+          id: s.id,
+          source: 'extract_cache' as const,
+          label: `${s.govFileName} vs ${s.internalFileName} · ${sessionGranularity} · ${s.comparedPoints}/${s.totalGovPoints} pts · local backup`,
+        }));
+      const sessions = [...remote, ...local];
       setSavedAnalyses(sessions);
       setSavedAnalysisHint(
-        typeof data.diagnostics?.hint === 'string' ? data.diagnostics.hint : '',
+        typeof body?.diagnostics?.hint === 'string'
+          ? body.diagnostics.hint
+          : '',
       );
       const preferred =
-        sessions.find((s) => s.source === 'session') ?? sessions[0];
+        sessions.find(
+          (s) => s.source === 'session' || s.source === 'extract_cache',
+        ) ?? sessions[0];
       if (preferred) setSelectedAnalysisId(preferred.id);
     } catch {
-      /* optional */
+      const local = listLocalDualVerifySessions(sessionGranularity).map((s) => ({
+        id: s.id,
+        source: 'extract_cache' as const,
+        label: `${s.govFileName} vs ${s.internalFileName} · local backup`,
+      }));
+      setSavedAnalyses(local);
     }
   }
 
@@ -383,13 +430,55 @@ export function DualVerifyWorkbench({
   ) {
     if (!doneItems.length) return;
 
+    const govHash = govBundleHash ?? GOV_FILE_HASH;
+    const internalHash = internalFileHash ?? INTERNAL_FILE_HASH;
+    const resultsJson = doneItems.map((i) => ({
+      point_id: i.point.point_id,
+      title: i.point.title,
+      text: i.point.text,
+      message: i.landingMessage ?? '',
+      landingMessage: i.landingMessage,
+      llmMessage: i.llmMessage,
+      agreementJson: i.agreement,
+    }));
+    const summaryJson = {
+      pipeline: profile === 'amlcft' ? 'amlcft-dual-verify' : 'dual-verify',
+      aiModel,
+      mismatchCount: doneItems.filter(
+        (i) => i.agreement && i.agreement.status !== 'aligned',
+      ).length,
+    };
+    const sessionKey = `${govHash}:${internalHash}:${sessionGranularity}`;
+    const existingLocal = loadLocalDualVerifySession(sessionKey);
+
+    saveLocalDualVerifySession({
+      id: existingLocal?.id ?? crypto.randomUUID(),
+      sessionKey,
+      granularity: sessionGranularity,
+      govFileHash: govHash,
+      internalFileHash: internalHash,
+      govFileName:
+        profile === 'amlcft' ? 'AML/CFT gov bundle' : 'TFS Guidelines.pdf',
+      internalFileName:
+        internalLabel?.split(',')[0]?.trim() ||
+        internalFiles?.[0]?.name ||
+        'I M P T F S.pdf',
+      totalGovPoints: govPoints.length + skippedGovCount,
+      comparedPoints: doneItems.length,
+      skippedPoints: skippedGovCount,
+      skippedJson: skippedGovNote,
+      resultsJson,
+      summaryJson,
+      updatedAt: new Date().toISOString(),
+    });
+
     try {
       const saveRes = await fetch(`${API_BASE}/landing-ai/compliance-sessions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          govFileHash: govBundleHash ?? GOV_FILE_HASH,
-          internalFileHash: internalFileHash ?? INTERNAL_FILE_HASH,
+          govFileHash: govHash,
+          internalFileHash: internalHash,
           govFileName:
             profile === 'amlcft'
               ? 'AML/CFT gov bundle'
@@ -403,27 +492,14 @@ export function DualVerifyWorkbench({
           skippedPoints: skippedGovCount,
           skippedJson: skippedGovNote,
           compareGranularity: sessionGranularity,
-          resultsJson: doneItems.map((i) => ({
-            point_id: i.point.point_id,
-            title: i.point.title,
-            text: i.point.text,
-            message: i.landingMessage ?? '',
-            landingMessage: i.landingMessage,
-            llmMessage: i.llmMessage,
-            agreementJson: i.agreement,
-          })),
-          summaryJson: {
-            pipeline: profile === 'amlcft' ? 'amlcft-dual-verify' : 'dual-verify',
-            aiModel,
-            mismatchCount: doneItems.filter(
-              (i) => i.agreement && i.agreement.status !== 'aligned',
-            ).length,
-          },
+          resultsJson,
+          summaryJson,
         }),
       });
       const saveData = (await saveRes.json().catch(() => ({}))) as {
         message?: string;
         comparedPoints?: number;
+        source?: string;
       };
       if (!saveRes.ok) {
         const msg =
@@ -431,19 +507,27 @@ export function DualVerifyWorkbench({
             ? saveData.message
             : 'Session save failed';
         if (!options?.quiet) {
-          setDbNote(`Dual verify finished but DB save failed: ${msg}`);
+          setDbNote(
+            `Supabase save failed (${msg}) — progress kept in browser local backup`,
+          );
         }
         return;
       }
       if (!options?.quiet) {
+        const via =
+          saveData.source === 'extract_cache'
+            ? 'Supabase extract cache'
+            : 'Supabase';
         setDbNote(
-          `Dual verify saved to Supabase (${sessionGranularity} · ${saveData.comparedPoints ?? doneItems.length} points) — reload anytime without credits`,
+          `Dual verify saved to ${via} (${sessionGranularity} · ${saveData.comparedPoints ?? doneItems.length} points) — reload anytime without credits`,
         );
       }
       await fetchSavedAnalyses();
     } catch (e) {
       if (!options?.quiet) {
-        setDbNote(`Could not save dual verify to DB: ${apiConnectionError(e)}`);
+        setDbNote(
+          `API unreachable — progress saved in browser local backup only (${apiConnectionError(e)})`,
+        );
       }
     }
   }
@@ -459,11 +543,21 @@ export function DualVerifyWorkbench({
       if (!govPoints.length) {
         await loadGovFromDb();
       }
-      const res = await fetch(
-        `${API_BASE}/landing-ai/compliance-sessions/${encodeURIComponent(selectedAnalysisId)}?granularity=${sessionGranularity}`,
-      );
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || JSON.stringify(data));
+
+      const local = loadLocalDualVerifySessionById(selectedAnalysisId);
+      const data = local
+        ? {
+            results: local.resultsJson,
+            comparedPoints: local.comparedPoints,
+          }
+        : await (async () => {
+            const res = await fetch(
+              `${API_BASE}/landing-ai/compliance-sessions/${encodeURIComponent(selectedAnalysisId)}?granularity=${sessionGranularity}`,
+            );
+            const json = await res.json();
+            if (!res.ok) throw new Error(json.message || JSON.stringify(json));
+            return json;
+          })();
 
       const results = (data.results ?? []) as Array<{
         point_id: string;
@@ -501,7 +595,7 @@ export function DualVerifyWorkbench({
       setItems(loaded);
       setSelectedIds(new Set());
       setDbNote(
-        `Loaded dual verify: ${data.comparedPoints} points · 0 credits`,
+        `Loaded dual verify: ${data.comparedPoints} points · 0 credits${local ? ' (local backup)' : ''}`,
       );
     } catch (e) {
       setError(apiConnectionError(e));
@@ -514,6 +608,107 @@ export function DualVerifyWorkbench({
     () => groupGovPointsByChapter(govPoints),
     [govPoints],
   );
+
+  const doneExportItems = useMemo(
+    () =>
+      items
+        .filter(
+          (i): i is DualVerifyItem & {
+            landingMessage: string;
+            llmMessage: string;
+            agreement: DualVerifyAgreement;
+          } =>
+            i.phase === 'done' &&
+            Boolean(i.landingMessage) &&
+            Boolean(i.llmMessage) &&
+            Boolean(i.agreement),
+        )
+        .map((i) => ({
+          point: i.point,
+          landingMessage: i.landingMessage,
+          llmMessage: i.llmMessage,
+          agreement: i.agreement,
+        })),
+    [items],
+  );
+
+  const summaryStats = useMemo(
+    () => buildDualVerifySummaryStats(doneExportItems),
+    [doneExportItems],
+  );
+
+  const executiveSummary = useMemo(
+    () => buildDualVerifyExecutiveSummary(summaryStats, exportPass),
+    [summaryStats, exportPass],
+  );
+
+  const pass1Report = useMemo(
+    () => buildPassReport(doneExportItems, 'pass1'),
+    [doneExportItems],
+  );
+
+  const pass2Report = useMemo(
+    () => buildPassReport(doneExportItems, 'pass2'),
+    [doneExportItems],
+  );
+
+  const legendResults = useMemo(() => {
+    if (exportPass === 'pass1') return pass1Report.results;
+    if (exportPass === 'pass2') return pass2Report.results;
+    return [...pass1Report.results, ...pass2Report.results];
+  }, [exportPass, pass1Report.results, pass2Report.results]);
+
+  const attentionResults = useMemo(() => {
+    if (exportPass === 'pass1') return pass1Report.stats.attentionItems;
+    if (exportPass === 'pass2') return pass2Report.stats.attentionItems;
+    return [
+      ...pass1Report.stats.attentionItems.map((item) => ({
+        ...item,
+        title: `[Pass 1] ${item.title}`,
+      })),
+      ...pass2Report.stats.attentionItems.map((item) => ({
+        ...item,
+        title: `[Pass 2] ${item.title}`,
+      })),
+    ];
+  }, [exportPass, pass1Report.stats.attentionItems, pass2Report.stats.attentionItems]);
+
+  const reportTitle =
+    profile === 'amlcft'
+      ? `AML/CFT Dual Verify — ${granularity === 'section' ? 'Section' : 'Leaf'}`
+      : `Dual Verify — ${granularity === 'section' ? 'Section' : 'Leaf'}`;
+
+  const exportFilenameBase =
+    profile === 'amlcft' ? `amlcft-${granularity}` : `dual-${granularity}`;
+
+  async function exportDualVerifyPdf() {
+    if (!doneExportItems.length) return;
+    setExporting(true);
+    try {
+      await downloadDualVerifyPdf(
+        doneExportItems,
+        exportPass,
+        reportTitle,
+        exportFilenameBase,
+      );
+    } finally {
+      setExporting(false);
+    }
+  }
+
+  async function exportDualVerifyExcel() {
+    if (!doneExportItems.length) return;
+    setExporting(true);
+    try {
+      await downloadDualVerifyExcel(
+        doneExportItems,
+        exportPass,
+        exportFilenameBase,
+      );
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const doneCount = items.filter((i) => i.phase === 'done').length;
   const mismatchCount = items.filter(
@@ -849,7 +1044,7 @@ export function DualVerifyWorkbench({
 
   function togglePointsByPrefix(prefix: string) {
     const inGroup = govPoints.filter((p) =>
-      pointMatchesPrefix(p.point_id, prefix, p.section),
+      pointMatchesPrefix(p.point_id, prefix),
     );
     const allSelected =
       inGroup.length > 0 && inGroup.every((p) => selectedIds.has(p.point_id));
@@ -883,7 +1078,7 @@ export function DualVerifyWorkbench({
           />
           <span className="min-w-0 flex-1">
             <span className="inline-block rounded bg-slate-200 px-1.5 py-0.5 font-mono text-xs font-bold text-slate-900">
-              {p.point_id}
+              {formatGovPointDisplayId(p)}
             </span>
             {p.title && (
               <span className="ml-1 text-slate-700">— {p.title}</span>
@@ -898,8 +1093,8 @@ export function DualVerifyWorkbench({
   }
 
   return (
-    <main className="mx-auto max-w-6xl space-y-6 p-4 pb-16 md:p-6">
-      <header className="space-y-2">
+    <main className="mx-auto max-w-6xl space-y-3 p-4 pb-10 md:p-5">
+      <header className="space-y-1.5">
         <div className="flex flex-wrap items-center gap-2 text-xs">
           <Link href="/" className="text-violet-700 hover:underline">
             Home
@@ -938,7 +1133,7 @@ export function DualVerifyWorkbench({
         </div>
       </header>
 
-      <section className="rounded-xl border border-indigo-200 bg-indigo-50/80 p-4">
+      <section className="rounded-xl border border-indigo-200 bg-indigo-50/80 p-3">
         <h2 className="text-sm font-semibold text-indigo-950">
           Verification pipeline
         </h2>
@@ -953,19 +1148,44 @@ export function DualVerifyWorkbench({
             <strong>Pass 1 — Landing AI</strong> (`extract-latest` · COMPARE_PROMPT_V2 · one point per call)
           </li>
           <li>
-            <strong>Pass 2 — LLM</strong> (default `gemini-3.5-flash` · dual-verify · internal PDF + DOCX text)
+            <strong>Pass 2 — LLM</strong> (
+            {profile === 'amlcft'
+              ? 'default `gemini-3.5-flash` · reads internal PDF + parsed DOCX text'
+              : 'default `gemini-3.5-flash` · reads internal PDF (IMPTFS) + Pass 1 output'}
+            )
           </li>
           <li>
-            <strong>Agreement check</strong> — compare Pass 1 vs Pass 2, auto-save session
+            <strong>Agreement check</strong> — compares Pass 1 vs Pass 2 (status +
+            confidence); results in{' '}
+            {doneExportItems.length > 0 ? (
+              <a href="#agreement-results" className="font-semibold underline">
+                Agreement check results
+              </a>
+            ) : (
+              <span className="font-semibold">Agreement check results</span>
+            )}{' '}
+            below · auto-saved to Supabase · PDF / Excel export
           </li>
         </ol>
         <p className="mt-2 text-[11px] text-indigo-800">
-          Note: Claude is not wired in this repo yet — Pass 2 uses Gemini or Azure GPT from the dropdown.
+          {profile === 'amlcft' ? (
+            <>
+              <strong>DOCX text</strong> = the Implementation Manual (.docx) parsed
+              to markdown and appended to the Pass 2 prompt so Gemini/GPT can search
+              Word policy text alongside the PDF.
+            </>
+          ) : (
+            <>
+              TFS dual-verify uses the internal PDF only (no DOCX). DOCX supplement
+              applies to AML/CFT when an Implementation Manual .docx is attached.
+            </>
+          )}{' '}
+          Claude is not wired yet — Pass 2 uses Gemini or Azure GPT from the dropdown.
         </p>
       </section>
 
-      <section className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="grid gap-3 lg:grid-cols-2">
+        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
           <h2 className="text-sm font-semibold text-slate-900">1. Gov points</h2>
           {profile === 'amlcft' ? (
             <>
@@ -1023,7 +1243,7 @@ export function DualVerifyWorkbench({
           {note && <p className="mt-2 text-xs text-teal-800">{note}</p>}
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
           <h2 className="text-sm font-semibold text-slate-900">
             2. Internal policy {profile === 'amlcft' ? '(AML Manual + Implementation DOCX)' : '(parse step 1 + Pass 2)'}
           </h2>
@@ -1064,19 +1284,31 @@ export function DualVerifyWorkbench({
           {parsePrep && (
             <p className="mt-2 text-xs font-medium text-violet-800">{parsePrep}</p>
           )}
+          {docxSupplementMarkdown.trim() ? (
+            <p className="mt-2 rounded-md border border-teal-200 bg-teal-50 px-2 py-1.5 text-[11px] text-teal-900">
+              <strong>DOCX text loaded for Pass 2:</strong>{' '}
+              {Math.round(docxSupplementMarkdown.length / 1000)}k characters from
+              Word manual(s) — parsed to markdown and sent with the LLM prompt as
+              extra internal policy context.
+            </p>
+          ) : profile === 'amlcft' ? (
+            <p className="mt-2 text-[11px] text-slate-500">
+              Attach Implementation Manual (.docx) to enable DOCX text for Pass 2.
+            </p>
+          ) : null}
         </div>
       </section>
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <section className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
         <h2 className="text-sm font-semibold text-slate-900">
           Saved dual verify (from DB)
         </h2>
-        <p className="mt-1 text-xs text-slate-600">
+        <p className="mt-0.5 text-xs text-slate-600">
           Each run is saved to Supabase automatically (merged by point). Reload
           previous analyses here without using Landing AI or LLM credits.
         </p>
         {dbNote && (
-          <p className="mt-2 text-xs font-medium text-emerald-900">{dbNote}</p>
+          <p className="mt-1.5 text-xs font-medium text-emerald-900">{dbNote}</p>
         )}
         {savedAnalyses.length === 0 ? (
           <p className="mt-2 text-xs text-slate-500">
@@ -1114,7 +1346,7 @@ export function DualVerifyWorkbench({
       </section>
 
       {govPoints.length === 0 && (
-        <section className="rounded-xl border border-amber-200 bg-amber-50/80 p-4 text-xs text-amber-950">
+        <section className="rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-950">
           <p className="font-semibold">No gov points loaded yet</p>
           <p className="mt-1">
             Click <strong>Load from Supabase (free)</strong> or{' '}
@@ -1131,7 +1363,7 @@ export function DualVerifyWorkbench({
       )}
 
       {govPoints.length > 0 && (
-        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-sm font-semibold text-slate-900">
               3. Select points ({selectedIds.size}/{govPoints.length})
@@ -1155,7 +1387,7 @@ export function DualVerifyWorkbench({
               </button>
             </div>
           </div>
-          <ul className="mt-3 max-h-[32rem] space-y-3 overflow-y-auto text-xs">
+          <ul className="mt-2 max-h-64 space-y-2 overflow-y-auto text-xs">
             {govByChapter.map(({ chapter, points: chapterPoints, sections }) => {
               const chapterSelected = chapterPoints.filter((p) =>
                 selectedIds.has(p.point_id),
@@ -1171,7 +1403,7 @@ export function DualVerifyWorkbench({
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-3 py-2">
                     <span className="text-xs font-bold uppercase tracking-wide text-slate-600">
-                      §{chapter} · {chapterPoints.length} point
+                      {formatChapterLabel(chapter)} · {chapterPoints.length} point
                       {chapterPoints.length === 1 ? '' : 's'}
                       {chapterSelected > 0 && (
                         <span className="ml-1 font-normal normal-case text-indigo-700">
@@ -1185,8 +1417,8 @@ export function DualVerifyWorkbench({
                       className="text-xs font-medium text-indigo-700 hover:underline"
                     >
                       {chapterAllSelected
-                        ? `Deselect all §${chapter}`
-                        : `Select all §${chapter}`}
+                        ? `Deselect all ${formatChapterLabel(chapter)}`
+                        : `Select all ${formatChapterLabel(chapter)}`}
                     </button>
                   </div>
                   <ul className="space-y-2 p-2">
@@ -1205,7 +1437,7 @@ export function DualVerifyWorkbench({
                           {showSectionBar && (
                             <div className="mb-1 flex flex-wrap items-center justify-between gap-2 px-1">
                               <span className="text-[11px] font-semibold text-slate-500">
-                                §{key}
+                                {formatSectionGroupLabel(key)}
                                 {sectionSelected > 0 && (
                                   <span className="ml-1 font-normal text-indigo-600">
                                     ({sectionSelected}/{sectionPoints.length})
@@ -1218,8 +1450,8 @@ export function DualVerifyWorkbench({
                                 className="text-[11px] text-indigo-700 hover:underline"
                               >
                                 {sectionAllSelected
-                                  ? `Deselect §${key}`
-                                  : `Select §${key}`}
+                                  ? `Deselect ${formatSectionGroupLabel(key)}`
+                                  : `Select ${formatSectionGroupLabel(key)}`}
                               </button>
                             </div>
                           )}
@@ -1237,41 +1469,54 @@ export function DualVerifyWorkbench({
         </section>
       )}
 
-      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={runDualVerify}
-            disabled={running || !govPoints.length}
-            className="rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
-          >
-            {running
-              ? 'Running pipeline…'
-              : govPoints.length
-                ? `Run dual verify (${selectedIds.size} selected of ${govPoints.length})`
-                : 'Run dual verify'}
-          </button>
-          {running && (
+      {govPoints.length > 0 && (
+        <section className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-3 shadow-sm">
+          <h2 className="text-sm font-semibold text-indigo-950">4. Run dual verify</h2>
+          <p className="mt-1 text-xs text-indigo-900">
+            Pass 1 (Landing AI) → Pass 2 (LLM) → agreement check per point. Session
+            auto-saves after each point.
+          </p>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={cancelPipeline}
-              className="rounded-md border border-red-300 px-4 py-2 text-xs font-semibold text-red-800"
+              onClick={runDualVerify}
+              disabled={running || !govPoints.length || selectedIds.size === 0}
+              className="rounded-md bg-indigo-600 px-4 py-2 text-xs font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
             >
-              Cancel
+              {running
+                ? 'Running pipeline…'
+                : `Run dual verify (${selectedIds.size} selected of ${govPoints.length})`}
             </button>
-          )}
-        </div>
-        {items.length > 0 && (
-          <p className="mt-2 text-xs text-slate-600">
-            Done: {doneCount}/{items.length}
-            {mismatchCount > 0 && (
-              <span className="ml-2 text-amber-800">
-                · {mismatchCount} need review
-              </span>
+            {running && (
+              <button
+                type="button"
+                onClick={cancelPipeline}
+                className="rounded-md border border-red-300 px-4 py-2 text-xs font-semibold text-red-800"
+              >
+                Cancel
+              </button>
             )}
-          </p>
-        )}
-      </section>
+            {items.length > 0 && (
+              <p className="text-xs text-slate-700">
+                Progress: {doneCount}/{items.length} done
+                {mismatchCount > 0 && (
+                  <span className="ml-2 font-medium text-amber-800">
+                    · {mismatchCount} need agreement review
+                  </span>
+                )}
+                {doneExportItems.length > 0 && (
+                  <a
+                    href="#agreement-results"
+                    className="ml-2 font-medium text-indigo-700 underline"
+                  >
+                    View results ↓
+                  </a>
+                )}
+              </p>
+            )}
+          </div>
+        </section>
+      )}
 
       {error && (
         <p className="rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-900">
@@ -1280,14 +1525,279 @@ export function DualVerifyWorkbench({
       )}
 
       {items.some((i) => i.phase === 'done' || i.phase === 'error') && (
-        <section className="space-y-6">
-          <h2 className="text-lg font-bold text-slate-900">Results</h2>
-          {items.map((item) => (
-            <DualVerifyResultCard key={item.point.point_id} item={item} />
-          ))}
+        <section id="agreement-results" className="scroll-mt-6 space-y-6">
+          {doneExportItems.length > 0 ? (
+            <>
+              <DualVerifyExportBar
+                doneCount={doneExportItems.length}
+                exportPass={exportPass}
+                exporting={exporting}
+                onExportPassChange={setExportPass}
+                onExportPdf={exportDualVerifyPdf}
+                onExportExcel={exportDualVerifyExcel}
+              />
+
+              <div className="space-y-6 rounded-xl border-2 border-violet-200 bg-white p-6 shadow-sm">
+                <div>
+                  <h2 className="text-lg font-bold text-slate-900">
+                    Agreement check results
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    {reportTitle} · {doneCount} point
+                    {doneCount === 1 ? '' : 's'} · {mismatchCount} need cross-pass
+                    review · auto-saved
+                  </p>
+                </div>
+
+                <section>
+                  <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-violet-800">
+                    Cross-pass agreement
+                  </h3>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    <AgreementStat label="Aligned" value={summaryStats.agreement.aligned} tone="ok" />
+                    <AgreementStat
+                      label="Confidence gap"
+                      value={summaryStats.agreement.confidence_gap}
+                      tone="warn"
+                    />
+                    <AgreementStat
+                      label="Status mismatch"
+                      value={summaryStats.agreement.status_mismatch}
+                      tone="danger"
+                    />
+                    <AgreementStat
+                      label="Both non-compliant"
+                      value={summaryStats.agreement.both_non_compliant}
+                      tone="warn"
+                    />
+                  </div>
+                </section>
+
+                <AgreementCheckTable items={doneExportItems} />
+
+                <ColorCodeLegend results={legendResults} />
+
+                {(exportPass === 'pass1' || exportPass === 'both') && (
+                  <section>
+                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-teal-800">
+                      Pass 1 — Landing AI statistics
+                    </h3>
+                    <p className="mb-3 text-sm text-slate-600">
+                      {pass1Report.stats.total} point
+                      {pass1Report.stats.total === 1 ? '' : 's'} analyzed
+                    </p>
+                    <StatusTierBoxes stats={pass1Report.stats} />
+                  </section>
+                )}
+
+                {(exportPass === 'pass2' || exportPass === 'both') && (
+                  <section>
+                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-indigo-800">
+                      Pass 2 — LLM verify statistics
+                    </h3>
+                    <p className="mb-3 text-sm text-slate-600">
+                      {pass2Report.stats.total} point
+                      {pass2Report.stats.total === 1 ? '' : 's'} analyzed
+                    </p>
+                    <StatusTierBoxes stats={pass2Report.stats} />
+                  </section>
+                )}
+
+                {executiveSummary && (
+                  <section>
+                    <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-violet-800">
+                      Executive summary
+                    </h3>
+                    <div className="rounded-lg border border-slate-100 bg-slate-50 p-4">
+                      <MarkdownSummary text={executiveSummary} />
+                    </div>
+                  </section>
+                )}
+
+                <section>
+                  <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-amber-800">
+                    Attention focus (&lt; 100% or Partial / Non-Compliant)
+                  </h3>
+                  <AttentionFocusCompact items={attentionResults} />
+                </section>
+
+                <DualVerifyExportBar
+                  doneCount={doneExportItems.length}
+                  exportPass={exportPass}
+                  exporting={exporting}
+                  onExportPassChange={setExportPass}
+                  onExportPdf={exportDualVerifyPdf}
+                  onExportExcel={exportDualVerifyExcel}
+                  compact
+                />
+              </div>
+            </>
+          ) : (
+            <p className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900">
+              Pipeline finished with errors — no complete Pass 1 + Pass 2 pairs to
+              show agreement. Fix errors in detailed results below and re-run failed
+              points.
+            </p>
+          )}
+
+          <div className="space-y-3">
+            <h2 className="text-lg font-bold text-slate-900">Detailed results</h2>
+            {items.map((item) => (
+              <DualVerifyResultCard key={item.point.point_id} item={item} />
+            ))}
+          </div>
         </section>
       )}
     </main>
+  );
+}
+
+function DualVerifyExportBar({
+  doneCount,
+  exportPass,
+  exporting,
+  onExportPassChange,
+  onExportPdf,
+  onExportExcel,
+  compact = false,
+}: {
+  doneCount: number;
+  exportPass: DualVerifyExportPass;
+  exporting: boolean;
+  onExportPassChange: (pass: DualVerifyExportPass) => void;
+  onExportPdf: () => void;
+  onExportExcel: () => void;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={`flex flex-wrap items-end justify-between gap-3 rounded-xl border border-slate-200 bg-white shadow-sm ${
+        compact ? 'p-3' : 'p-4'
+      }`}
+    >
+      <div>
+        {!compact && (
+          <h2 className="text-lg font-bold text-slate-900">Download report</h2>
+        )}
+        <p className={`${compact ? '' : 'mt-1'} text-xs text-slate-600`}>
+          {doneCount} point{doneCount === 1 ? '' : 's'} · Pass 1 / Pass 2 / both ·
+          PDF or Excel
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="flex items-center gap-2 text-xs text-slate-600">
+          <span className="font-medium">Scope</span>
+          <select
+            value={exportPass}
+            onChange={(e) =>
+              onExportPassChange(e.target.value as DualVerifyExportPass)
+            }
+            className="rounded-md border border-slate-300 px-2 py-1.5 text-xs"
+          >
+            <option value="both">Both passes (agreement)</option>
+            <option value="pass1">Pass 1 only (Landing AI)</option>
+            <option value="pass2">Pass 2 only (LLM verify)</option>
+        </select>
+        </label>
+        <button
+          type="button"
+          onClick={onExportPdf}
+          disabled={exporting}
+          className="rounded-md border border-amber-400 bg-amber-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600 disabled:opacity-40"
+        >
+          PDF
+        </button>
+        <button
+          type="button"
+          onClick={onExportExcel}
+          disabled={exporting}
+          className="rounded-md border border-emerald-500 bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-40"
+        >
+          Excel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function AgreementCheckTable({
+  items,
+}: {
+  items: Array<{
+    point: { point_id: string };
+    agreement: DualVerifyAgreement;
+  }>;
+}) {
+  return (
+    <section>
+      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-violet-800">
+        Per-point agreement
+      </h3>
+      <div className="overflow-x-auto rounded-lg border border-slate-200">
+        <table className="min-w-full text-left text-xs">
+          <thead className="bg-slate-50 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+            <tr>
+              <th className="px-3 py-2">Point</th>
+              <th className="px-3 py-2">Pass 1 status</th>
+              <th className="px-3 py-2">Pass 1 conf.</th>
+              <th className="px-3 py-2">Pass 2 status</th>
+              <th className="px-3 py-2">Pass 2 conf.</th>
+              <th className="px-3 py-2">Agreement</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {items.map((item) => (
+              <tr key={item.point.point_id} className="bg-white">
+                <td className="px-3 py-2 font-semibold text-slate-900">
+                  {item.point.point_id}
+                </td>
+                <td className="px-3 py-2">{item.agreement.landingStatus}</td>
+                <td className="px-3 py-2">
+                  {item.agreement.landingConfidence != null
+                    ? `${item.agreement.landingConfidence}%`
+                    : '—'}
+                </td>
+                <td className="px-3 py-2">{item.agreement.llmStatus}</td>
+                <td className="px-3 py-2">
+                  {item.agreement.llmConfidence != null
+                    ? `${item.agreement.llmConfidence}%`
+                    : '—'}
+                </td>
+                <td className="px-3 py-2">
+                  <span
+                    className={`inline-block rounded-full border px-2 py-0.5 text-[10px] font-semibold ${agreementBadgeClass(item.agreement.status as AgreementStatus)}`}
+                  >
+                    {item.agreement.label}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function AgreementStat({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: number;
+  tone: 'ok' | 'warn' | 'danger';
+}) {
+  const tones = {
+    ok: 'border-emerald-200 bg-emerald-50 text-emerald-900',
+    warn: 'border-amber-200 bg-amber-50 text-amber-900',
+    danger: 'border-red-200 bg-red-50 text-red-900',
+  };
+  return (
+    <div className={`rounded-lg border px-3 py-3 text-center ${tones[tone]}`}>
+      <p className="text-[10px] font-bold uppercase tracking-wide opacity-80">{label}</p>
+      <p className="mt-1 text-2xl font-bold">{value}</p>
+    </div>
   );
 }
 

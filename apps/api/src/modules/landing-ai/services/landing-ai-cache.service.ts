@@ -1,10 +1,31 @@
-import { createHash } from 'crypto';
+import { createHash, randomUUID } from 'crypto';
 import { Injectable, Logger } from '@nestjs/common';
 import { SupabaseService } from '../../../common/supabase/supabase.service';
 import type {
   ExtractSchemaKey,
   LandingAiJobRecord,
 } from '../types/landing-ai.types';
+
+/** Stored in landing_ai_extract_cache when compliance_sessions table is missing. */
+export const COMPLIANCE_SESSION_CACHE_PREFIX = 'bcp-session:';
+
+export type ComplianceSessionCachePayload = {
+  kind: 'compliance_session';
+  id: string;
+  session_key: string;
+  gov_file_hash: string;
+  internal_file_hash: string;
+  gov_file_name: string;
+  internal_file_name: string;
+  total_gov_points: number;
+  compared_points: number;
+  skipped_points: number;
+  skipped_json: unknown;
+  results_json: unknown;
+  summary_json: unknown;
+  created_at: string;
+  updated_at: string;
+};
 
 @Injectable()
 export class LandingAiCacheService {
@@ -345,6 +366,185 @@ export class LandingAiCacheService {
       .maybeSingle();
     if (error || !data) return null;
     return data;
+  }
+
+  static complianceSessionCacheFileHash(sessionKey: string): string {
+    return `${COMPLIANCE_SESSION_CACHE_PREFIX}${sessionKey}`;
+  }
+
+  private isComplianceSessionCacheRow(
+    fileHash: string,
+    pointsJson: unknown,
+  ): pointsJson is ComplianceSessionCachePayload {
+    return (
+      fileHash.startsWith(COMPLIANCE_SESSION_CACHE_PREFIX) &&
+      typeof pointsJson === 'object' &&
+      pointsJson !== null &&
+      (pointsJson as ComplianceSessionCachePayload).kind === 'compliance_session'
+    );
+  }
+
+  async saveComplianceSessionToExtractCache(params: {
+    sessionKey: string;
+    govFileHash: string;
+    internalFileHash: string;
+    govFileName: string;
+    internalFileName: string;
+    totalGovPoints: number;
+    comparedPoints: number;
+    skippedPoints: number;
+    skippedJson: unknown;
+    resultsJson: unknown;
+    summaryJson?: unknown;
+    existingId?: string;
+  }): Promise<{ saved: boolean; comparedPoints: number; id: string }> {
+    if (!(await this.isCacheEnabled())) {
+      throw new Error('Supabase cache is not configured');
+    }
+
+    const existing = await this.getComplianceSessionFromExtractCacheByKey(
+      params.sessionKey,
+    );
+    const now = new Date().toISOString();
+    const payload: ComplianceSessionCachePayload = {
+      kind: 'compliance_session',
+      id: params.existingId ?? existing?.id ?? randomUUID(),
+      session_key: params.sessionKey,
+      gov_file_hash: params.govFileHash,
+      internal_file_hash: params.internalFileHash,
+      gov_file_name: params.govFileName,
+      internal_file_name: params.internalFileName,
+      total_gov_points: params.totalGovPoints,
+      compared_points: params.comparedPoints,
+      skipped_points: params.skippedPoints,
+      skipped_json: params.skippedJson,
+      results_json: params.resultsJson,
+      summary_json: params.summaryJson ?? null,
+      created_at: existing?.created_at ?? now,
+      updated_at: now,
+    };
+
+    const { error } = await this.supabaseService
+      .getAdminClient()
+      .from('landing_ai_extract_cache')
+      .upsert(
+        {
+          file_hash: LandingAiCacheService.complianceSessionCacheFileHash(
+            params.sessionKey,
+          ),
+          schema_key: 'compliance_comparison',
+          points_json: payload,
+          extract_model: 'compliance_session_v1',
+        },
+        { onConflict: 'file_hash,schema_key' },
+      );
+    if (error) {
+      throw new Error(error.message);
+    }
+    return {
+      saved: true,
+      comparedPoints: params.comparedPoints,
+      id: payload.id,
+    };
+  }
+
+  async listComplianceSessionsFromExtractCache(limit = 30): Promise<
+    Array<{
+      id: string;
+      session_key: string;
+      gov_file_name: string;
+      internal_file_name: string;
+      total_gov_points: number;
+      compared_points: number;
+      skipped_points: number;
+      summary_json: unknown;
+      created_at: string;
+      updated_at: string;
+    }>
+  > {
+    if (!(await this.isCacheEnabled())) return [];
+    const { data, error } = await this.supabaseService
+      .getAdminClient()
+      .from('landing_ai_extract_cache')
+      .select('file_hash, points_json, created_at')
+      .eq('schema_key', 'compliance_comparison')
+      .like('file_hash', `${COMPLIANCE_SESSION_CACHE_PREFIX}%`)
+      .order('created_at', { ascending: false })
+      .limit(Math.max(limit, 50));
+
+    if (error) {
+      this.logger.warn(
+        `listComplianceSessionsFromExtractCache failed: ${error.message}`,
+      );
+      return [];
+    }
+
+    return (data ?? [])
+      .map((row) => {
+        if (
+          !this.isComplianceSessionCacheRow(row.file_hash, row.points_json)
+        ) {
+          return null;
+        }
+        const p = row.points_json;
+        return {
+          id: p.id,
+          session_key: p.session_key,
+          gov_file_name: p.gov_file_name,
+          internal_file_name: p.internal_file_name,
+          total_gov_points: p.total_gov_points,
+          compared_points: p.compared_points,
+          skipped_points: p.skipped_points,
+          summary_json: p.summary_json,
+          created_at: p.created_at,
+          updated_at: p.updated_at,
+        };
+      })
+      .filter((row): row is NonNullable<typeof row> => row !== null)
+      .slice(0, limit);
+  }
+
+  async getComplianceSessionFromExtractCacheByKey(
+    sessionKey: string,
+  ): Promise<ComplianceSessionCachePayload | null> {
+    if (!(await this.isCacheEnabled())) return null;
+    const row = await this.getExtractCache(
+      LandingAiCacheService.complianceSessionCacheFileHash(sessionKey),
+      'compliance_comparison',
+    );
+    if (!row?.points_json) return null;
+    const fileHash = LandingAiCacheService.complianceSessionCacheFileHash(
+      sessionKey,
+    );
+    if (
+      !this.isComplianceSessionCacheRow(fileHash, row.points_json)
+    ) {
+      return null;
+    }
+    return row.points_json;
+  }
+
+  async getComplianceSessionFromExtractCacheById(
+    id: string,
+  ): Promise<ComplianceSessionCachePayload | null> {
+    if (!(await this.isCacheEnabled())) return null;
+    const { data, error } = await this.supabaseService
+      .getAdminClient()
+      .from('landing_ai_extract_cache')
+      .select('file_hash, points_json')
+      .eq('schema_key', 'compliance_comparison')
+      .like('file_hash', `${COMPLIANCE_SESSION_CACHE_PREFIX}%`);
+
+    if (error || !data?.length) return null;
+    for (const row of data) {
+      if (
+        this.isComplianceSessionCacheRow(row.file_hash, row.points_json) &&
+        row.points_json.id === id
+      ) {
+        return row.points_json;
+      }
+    }
+    return null;
   }
 
   async logJob(params: {

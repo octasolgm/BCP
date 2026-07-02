@@ -5,7 +5,7 @@ import {
   type ColorTier,
 } from './color-tier';
 import type { FullReportExport } from './export-report';
-import type { ParsedComplianceResult } from './parse-compliance-results';
+import type { ParsedComplianceResult, ReportStats } from './parse-compliance-results';
 import {
   hasDisplayableFulfilledClauses,
   parseBulletLines,
@@ -659,4 +659,126 @@ export async function downloadResultsPdf(
     filename,
     'BCP Formatted Compliance Results',
   );
+}
+
+export type DualVerifyComparisonPdfItem = {
+  pointId: string;
+  agreementLabel: string;
+  agreementSummary: string;
+  pass1Block: ReferenceComplianceBlock;
+  pass2Block: ReferenceComplianceBlock;
+};
+
+export type DualVerifyAgreementCounts = {
+  total: number;
+  aligned: number;
+  confidence_gap: number;
+  status_mismatch: number;
+  both_non_compliant: number;
+};
+
+/** PDF export comparing Pass 1 (Landing AI) and Pass 2 (LLM) side by side. */
+export async function downloadDualVerifyComparisonPdf(params: {
+  title: string;
+  filename: string;
+  summary: string;
+  pass1Stats: ReportStats;
+  pass2Stats: ReportStats;
+  agreementCounts: DualVerifyAgreementCounts;
+  items: DualVerifyComparisonPdfItem[];
+}): Promise<void> {
+  const { jsPDF } = await import('jspdf');
+  const pdf = new jsPDF({
+    orientation: 'p',
+    unit: 'mm',
+    format: 'a4',
+    compress: true,
+  });
+  const w = new PdfWriter(pdf);
+
+  w.writeln(params.title, 16, { bold: true, color: [30, 41, 59] });
+  w.writeln(`Generated ${new Date().toLocaleString()}`, 8, {
+    color: [100, 116, 139],
+  });
+  w.gap(4);
+
+  w.sectionTitle('Cross-pass agreement');
+  w.drawStatusBoxes(
+    params.agreementCounts.aligned,
+    params.agreementCounts.confidence_gap,
+    params.agreementCounts.status_mismatch + params.agreementCounts.both_non_compliant,
+  );
+  w.writeln(
+    `${params.agreementCounts.total} points · Aligned ${params.agreementCounts.aligned} · Confidence gap ${params.agreementCounts.confidence_gap} · Mismatch ${params.agreementCounts.status_mismatch} · Both non-compliant ${params.agreementCounts.both_non_compliant}`,
+    8,
+    { color: [100, 116, 139] },
+  );
+  w.gap(2);
+
+  w.sectionTitle('Pass 1 — Landing AI statistics');
+  w.writeln(`${params.pass1Stats.total} points analyzed`, 9, {
+    color: [100, 116, 139],
+  });
+  w.drawStatusBoxes(
+    params.pass1Stats.compliant,
+    params.pass1Stats.partial,
+    params.pass1Stats.nonCompliant,
+  );
+
+  w.sectionTitle('Pass 2 — LLM verify statistics');
+  w.writeln(`${params.pass2Stats.total} points analyzed`, 9, {
+    color: [100, 116, 139],
+  });
+  w.drawStatusBoxes(
+    params.pass2Stats.compliant,
+    params.pass2Stats.partial,
+    params.pass2Stats.nonCompliant,
+  );
+
+  const pdfSummary = summaryForPdf(params.summary);
+  if (pdfSummary) {
+    w.sectionTitle('Executive summary');
+    for (const line of pdfSummary.split('\n')) {
+      const trimmed = line.trim();
+      if (!trimmed) continue;
+      w.writeln(trimmed, 9);
+    }
+  }
+
+  const attentionItems = [
+    ...params.pass1Stats.attentionItems.map((item) => ({
+      ...item,
+      title: `[Pass 1] ${item.title}`,
+    })),
+    ...params.pass2Stats.attentionItems.map((item) => ({
+      ...item,
+      title: `[Pass 2] ${item.title}`,
+    })),
+  ];
+
+  w.sectionTitle('Attention focus (< 100% or Partial / Non-Compliant)');
+  if (attentionItems.length === 0) {
+    w.writeln('All points at 100% confidence and Compliant on both passes.', 9, {
+      color: [6, 95, 70],
+    });
+  } else {
+    for (const item of attentionItems) {
+      w.drawAttentionItem(item);
+    }
+  }
+
+  w.sectionTitle(`Detailed comparison (${params.items.length})`);
+  for (const item of params.items) {
+    w.sectionTitle(`${item.pointId} — ${item.agreementLabel}`);
+    w.writeln(item.agreementSummary, 9, { color: [71, 85, 105] });
+    w.gap(2);
+    w.writeln('Pass 1 — Landing AI', 11, { bold: true, color: [13, 148, 136] });
+    w.drawComplianceRecord(item.pass1Block);
+    w.gap(3);
+    w.writeln('Pass 2 — LLM verify', 11, { bold: true, color: [79, 70, 229] });
+    w.drawComplianceRecord(item.pass2Block);
+    w.gap(4);
+  }
+
+  pdf.save(params.filename);
 }

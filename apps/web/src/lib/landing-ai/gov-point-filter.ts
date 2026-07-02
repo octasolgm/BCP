@@ -100,6 +100,46 @@ export function isSectionOnePoint(pointId: string, section: string): boolean {
   return false;
 }
 
+const ANNEX_SUBSECTION_HEADING_RE =
+  /^\d+\.\s+(?:Red Flag Indicators|Lessons learned)/i;
+
+/**
+ * Annexes and red-flag indicator lists — not main guidance chapters (§2–§4).
+ * Keep in sync with apps/api/src/modules/landing-ai/utils/gov-point-filter.ts
+ */
+export function isAnnexPoint(point: {
+  point_id: string;
+  title?: string;
+  section?: string;
+}): boolean {
+  const pointId = point.point_id.trim();
+  const section = (point.section ?? '').trim();
+  const title = (point.title ?? '').trim();
+
+  if (/^annexes?\b/i.test(section)) return true;
+  if (/^annex\s+\d+/i.test(section) || /\bannex\s+\d+\s*·/i.test(section)) {
+    return true;
+  }
+  if (/^annexes?\s*-/i.test(pointId)) return true;
+  if (ANNEX_SUBSECTION_HEADING_RE.test(section)) return true;
+  if (/red flag indicators for (tf|pf)\b/i.test(section)) return true;
+  if (/^red flag indicators for (tf|pf)\b/i.test(title)) return true;
+  if (/FATF Typologies Report on Proliferation Financing/i.test(title)) {
+    return true;
+  }
+  if (
+    /^\([ivxlcdm]+\)$/i.test(pointId) &&
+    (ANNEX_SUBSECTION_HEADING_RE.test(section) || /red flag/i.test(section))
+  ) {
+    return true;
+  }
+  if (pointId === '1' && /annex\s+1/i.test(section) && /red flag/i.test(title)) {
+    return true;
+  }
+
+  return false;
+}
+
 export type GovPointClassification = {
   comparable: boolean;
   reason?: string;
@@ -114,6 +154,13 @@ export function classifyGovPoint(point: GovPoint): GovPointClassification {
     return {
       comparable: false,
       reason: '§1 and subpoints skipped (compare starts at §2)',
+    };
+  }
+
+  if (isAnnexPoint(point)) {
+    return {
+      comparable: false,
+      reason: 'annex / red-flag indicators skipped (main body §2–§4 only)',
     };
   }
 
@@ -303,11 +350,12 @@ export function filterComparableGovPoints(points: GovPoint[]): {
   comparable: GovPoint[];
   skipped: Array<{ point: GovPoint; reason: string }>;
 } {
+  const enriched = enrichGovPointSections(points);
   const leafComparable: GovPoint[] = [];
   const skipped: Array<{ point: GovPoint; reason: string }> = [];
-  const allPointIds = points.map((p) => p.point_id);
+  const allPointIds = enriched.map((p) => p.point_id);
 
-  for (const point of points) {
+  for (const point of enriched) {
     let { comparable: ok, reason } = classifyGovPoint(point);
 
     if (ok && point.point_id.trim() === '2.') {
@@ -341,11 +389,12 @@ export function filterComparableGovLeafPoints(points: GovPoint[]): {
   comparable: GovPoint[];
   skipped: Array<{ point: GovPoint; reason: string }>;
 } {
+  const enriched = enrichGovPointSections(points);
   const comparable: GovPoint[] = [];
   const skipped: Array<{ point: GovPoint; reason: string }> = [];
-  const allPointIds = points.map((p) => p.point_id);
+  const allPointIds = enriched.map((p) => p.point_id);
 
-  for (const point of points) {
+  for (const point of enriched) {
     let { comparable: ok, reason } = classifyGovPoint(point);
 
     if (ok && point.point_id.trim() === '2.') {
@@ -383,6 +432,97 @@ export function chapterFromSection(section?: string): string | null {
   return m?.[1] ?? null;
 }
 
+/** Annex / list ids from PDF extract, e.g. "(i)", "(ii)". */
+export function isRomanPointId(pointId: string): boolean {
+  return /^\([ivxlcdm]+\)$/i.test(pointId.trim());
+}
+
+/** Annex sub-headings where Landing AI omits the parent "Annex 1" prefix. */
+const ANNEX_SUBSECTION_RE =
+  /^\d+\.\s+(?:Red Flag Indicators|Lessons learned)/i;
+
+export function isAnnexSectionHeading(section?: string): boolean {
+  return /^annex\s+\d+/i.test((section ?? '').trim());
+}
+
+export function isAnnexSubsectionHeading(section?: string): boolean {
+  const s = (section ?? '').trim();
+  if (!s || isAnnexSectionHeading(s)) return false;
+  return ANNEX_SUBSECTION_RE.test(s);
+}
+
+/** Resolve annex chapter when section lost the "Annex 1" parent (common extract artifact). */
+export function resolveAnnexChapter(
+  section?: string,
+  pointId?: string,
+): string | null {
+  const s = (section ?? '').trim();
+  const annexInSection = s.match(/^(Annex\s+\d+)/i);
+  if (annexInSection) return annexInSection[1];
+
+  const id = (pointId ?? '').trim();
+  if (isRomanPointId(id) || isAnnexSubsectionHeading(s)) {
+    return 'Annex 1';
+  }
+  return null;
+}
+
+/**
+ * Fix annex context on extracted points — e.g. section "2. Red Flag Indicators for PF"
+ * becomes "Annex 1 · 2. Red Flag Indicators for PF" so it is not grouped under main §2.
+ */
+export function enrichGovPointSections(points: GovPoint[]): GovPoint[] {
+  return points.map((point) => {
+    const section = (point.section ?? '').trim();
+    if (!section || isAnnexSectionHeading(section)) return point;
+
+    const annex = resolveAnnexChapter(section, point.point_id);
+    if (!annex || section.startsWith(`${annex} ·`)) return point;
+
+    return { ...point, section: `${annex} · ${section}` };
+  });
+}
+
+/**
+ * Human-readable point id for UI — numeric ids unchanged; annex roman items
+ * show as Annex-1.2.(i) (not bare (i) or main-body 2.(i)).
+ */
+export function formatGovPointDisplayId(point: GovPoint): string {
+  const id = point.point_id.trim();
+  const norm = normalizeNumericPointId(id);
+  if (norm) return norm;
+
+  if (isRomanPointId(id)) {
+    const section = (point.section ?? '').trim();
+    const annex = resolveAnnexChapter(section, id);
+    const sub = section.match(/^(?:Annex\s+\d+\s*·\s*)?(\d+)\.\s+/i);
+    if (annex && sub) {
+      return `${annex.replace(/\s+/g, '-')}.${sub[1]}${id}`;
+    }
+    return id;
+  }
+
+  return id;
+}
+
+/** Chapter header — main body §N; annex chapters shown without § prefix. */
+export function formatChapterLabel(chapter: string): string {
+  const c = chapter.trim();
+  if (/^annex\s+\d+/i.test(c)) return c;
+  return `§${c}`;
+}
+
+/** Section bar label — numeric groups get § prefix; annex headings stay verbatim. */
+export function formatSectionGroupLabel(key: string): string {
+  const k = key.trim();
+  if (!k) return k;
+  if (/^annex\s+\d+/i.test(k)) return k;
+  if (/^annex\s+\d+\s*·\s*/i.test(k)) return k;
+  if (/^\d+\.\d+(?:\.\d+)*$/.test(k)) return `§${k}`;
+  if (/^\d+$/.test(k)) return `§${k}`;
+  return k;
+}
+
 /** Section group from heading, e.g. "2.4. Internal Controls" → "2.4", "4. NOTIFICATION…" → "4". */
 export function sectionGroupFromSection(section?: string): string | null {
   const s = (section ?? '').trim();
@@ -402,15 +542,18 @@ export function stripGovPointPrefix(pointId: string): string {
   return idx >= 0 ? pointId.slice(idx + 1).trim() : pointId.trim();
 }
 
-/** Top-level chapter id, e.g. "2.4.1" → "2"; "Article 21(5)" + section "4. …" → "4". */
+/** Top-level chapter id — main §2, §3, or Annex 1 (not annex "2." confused with §2). */
 export function getChapterKey(pointId: string, section?: string): string | null {
   const id = stripGovPointPrefix(pointId);
+  const annex = resolveAnnexChapter(section, id);
+  if (annex) return annex;
+
   const norm = normalizeNumericPointId(id);
   if (norm) return norm.split('.')[0] ?? null;
   return chapterFromSection(section);
 }
 
-/** Mid-level section group, e.g. "2.4.1" → "2.4"; Article points under "4. …" → "4". */
+/** Mid-level section group, e.g. "2.4.1" → "2.4"; roman annex items use full section heading. */
 export function getSectionGroupKey(pointId: string, section?: string): string | null {
   const id = stripGovPointPrefix(pointId);
   const norm = normalizeNumericPointId(id);
@@ -419,6 +562,13 @@ export function getSectionGroupKey(pointId: string, section?: string): string | 
     if (parts.length >= 3) return `${parts[0]}.${parts[1]}`;
     if (parts.length === 2) return norm;
     return null;
+  }
+  if (isRomanPointId(id)) {
+    const s = (section ?? '').trim();
+    return s || id;
+  }
+  if (isAnnexSubsectionHeading(section)) {
+    return (section ?? '').trim();
   }
   return sectionGroupFromSection(section) ?? (id || null);
 }
@@ -438,6 +588,11 @@ export function pointMatchesPrefix(
   }
   const chapter = chapterFromSection(section);
   const secGroup = sectionGroupFromSection(section);
+  const groupKey = getSectionGroupKey(pointId, section);
+  const sec = (section ?? '').trim();
+  if (groupKey === prefix || sec === prefix) return true;
+  const annex = resolveAnnexChapter(section, pointId);
+  if (annex && (prefix === annex || sec.startsWith(`${annex} ·`))) return true;
   return chapter === p || secGroup === p || Boolean(secGroup?.startsWith(`${p}.`));
 }
 

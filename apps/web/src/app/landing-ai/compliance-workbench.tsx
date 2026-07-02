@@ -39,7 +39,10 @@ import {
 import {
   filterComparableGovPoints,
   filterComparableGovLeafPoints,
+  formatGovPointDisplayId,
+  formatChapterLabel,
   formatGovRequirementForDisplay,
+  formatSectionGroupLabel,
   groupGovPointsByChapter,
   pointMatchesPrefix,
   type GovPoint as FilterGovPoint,
@@ -337,7 +340,7 @@ export function ComplianceWorkbench({ granularity }: ComplianceWorkbenchProps) {
             className="mt-1 h-4 w-4 shrink-0 rounded border-violet-300 text-violet-600 focus:ring-violet-500"
           />
           <span className="min-w-0 flex-1">
-            <span className="font-semibold text-violet-900">{p.point_id}</span>
+            <span className="font-semibold text-violet-900">{formatGovPointDisplayId(p)}</span>
             {p.title && (
               <span className="text-violet-800"> — {p.title}</span>
             )}
@@ -1472,7 +1475,7 @@ export function ComplianceWorkbench({ granularity }: ComplianceWorkbenchProps) {
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 px-3 py-2">
                         <span className="text-xs font-bold uppercase tracking-wide text-slate-600">
-                          §{chapter} · {chapterPoints.length} point
+                          {formatChapterLabel(chapter)} · {chapterPoints.length} point
                           {chapterPoints.length === 1 ? '' : 's'}
                           {chapterSelected > 0 && (
                             <span className="ml-1 font-normal normal-case text-violet-700">
@@ -1486,8 +1489,8 @@ export function ComplianceWorkbench({ granularity }: ComplianceWorkbenchProps) {
                           className="text-xs font-medium text-violet-700 hover:underline"
                         >
                           {chapterAllSelected
-                            ? `Deselect all §${chapter}`
-                            : `Select all §${chapter}`}
+                            ? `Deselect all ${formatChapterLabel(chapter)}`
+                            : `Select all ${formatChapterLabel(chapter)}`}
                         </button>
                       </div>
                       <ul className="space-y-2 p-2">
@@ -1506,7 +1509,7 @@ export function ComplianceWorkbench({ granularity }: ComplianceWorkbenchProps) {
                               {showSectionBar && (
                                 <div className="mb-1 flex flex-wrap items-center justify-between gap-2 px-1">
                                   <span className="text-[11px] font-semibold text-slate-500">
-                                    §{key}
+                                    {formatSectionGroupLabel(key)}
                                     {sectionSelected > 0 && (
                                       <span className="ml-1 font-normal text-violet-600">
                                         ({sectionSelected}/{sectionPoints.length})
@@ -1519,8 +1522,8 @@ export function ComplianceWorkbench({ granularity }: ComplianceWorkbenchProps) {
                                     className="text-[11px] text-violet-700 hover:underline"
                                   >
                                     {sectionAllSelected
-                                      ? `Deselect §${key}`
-                                      : `Select §${key}`}
+                                      ? `Deselect ${formatSectionGroupLabel(key)}`
+                                      : `Select ${formatSectionGroupLabel(key)}`}
                                   </button>
                                 </div>
                               )}

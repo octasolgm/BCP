@@ -76,6 +76,43 @@ export function isSectionOnePoint(pointId: string, section: string): boolean {
   return false;
 }
 
+const ANNEX_SUBSECTION_HEADING_RE =
+  /^\d+\.\s+(?:Red Flag Indicators|Lessons learned)/i;
+
+/** Annexes and red-flag lists — not main guidance chapters §2–§4. */
+export function isAnnexPoint(point: {
+  point_id: string;
+  title?: string;
+  section?: string;
+}): boolean {
+  const pointId = point.point_id.trim();
+  const section = (point.section ?? '').trim();
+  const title = (point.title ?? '').trim();
+
+  if (/^annexes?\b/i.test(section)) return true;
+  if (/^annex\s+\d+/i.test(section) || /\bannex\s+\d+\s*·/i.test(section)) {
+    return true;
+  }
+  if (/^annexes?\s*-/i.test(pointId)) return true;
+  if (ANNEX_SUBSECTION_HEADING_RE.test(section)) return true;
+  if (/red flag indicators for (tf|pf)\b/i.test(section)) return true;
+  if (/^red flag indicators for (tf|pf)\b/i.test(title)) return true;
+  if (/FATF Typologies Report on Proliferation Financing/i.test(title)) {
+    return true;
+  }
+  if (
+    /^\([ivxlcdm]+\)$/i.test(pointId) &&
+    (ANNEX_SUBSECTION_HEADING_RE.test(section) || /red flag/i.test(section))
+  ) {
+    return true;
+  }
+  if (pointId === '1' && /annex\s+1/i.test(section) && /red flag/i.test(title)) {
+    return true;
+  }
+
+  return false;
+}
+
 export type GovPointClassification = {
   comparable: boolean;
   reason?: string;
@@ -90,6 +127,13 @@ export function classifyGovPoint(point: GovRequirementPoint): GovPointClassifica
     return {
       comparable: false,
       reason: '§1 and subpoints skipped (compare starts at §2)',
+    };
+  }
+
+  if (isAnnexPoint(point)) {
+    return {
+      comparable: false,
+      reason: 'annex / red-flag indicators skipped (main body §2–§4 only)',
     };
   }
 
